@@ -1,9 +1,11 @@
 #include <iostream>
-#include "json.hpp"
+#include <vector>
+
 #pragma once
 
+#define DB_BUFF 200000
+
 using namespace std;
-using json = nlohmann::json;
 
 class User {
 private:
@@ -14,7 +16,7 @@ public:
 	User();
 	User(string username, string password);
 	~User();
-	json toJSON();
-	void fromJSON(const json &j);
+	int readUserDb(string USER_DB_PATH, vector<User> &users);
+	int registerAccount(string USER_DB_PATH, vector<User> &users, User user);
 };
 

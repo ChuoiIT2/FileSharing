@@ -1,10 +1,8 @@
 #include <iostream>
-#include "json.hpp"
 
 #pragma once
 
 using namespace std;
-using json = nlohmann::json;
 
 enum Role {
 	OWNER,
@@ -28,7 +26,5 @@ private:
 public:
 	UserTeam(string _username, string _teamName, Role _role, UserTeamStatus _status);
 	~UserTeam();
-	json toJSON();
-	void fromJSON(const json &j);
 };
 

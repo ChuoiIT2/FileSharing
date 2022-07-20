@@ -8,12 +8,3 @@ Team::Team(string _name) {
 }
 
 Team::~Team() { }
-
-json Team::toJSON() {
-	json j = json{ { "name", name } };
-	return j;
-}
-
-void Team::fromJSON(const json& j) {
-	name = j["name"].get<string>();
-}

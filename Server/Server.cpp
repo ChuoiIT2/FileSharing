@@ -42,25 +42,6 @@ int handleArguments(int argc, char** argv) {
 	return 1;
 }
 
-void readUserDb() {
-	errno_t error = fopen_s(&fUser, USER_DB_PATH.c_str(), "rb");
-	if (error == 0) {
-		cout << "Error: Cannot open USER_DB" << "\n";
-		return;
-	}
-	char buff[DB_BUFF];
-	int readBuff = fread_s(buff, DB_BUFF, 1, DB_BUFF, fUser);
-}
-
-void registerAccount(User user) {
-	users.push_back(user);
-	errno_t error = fopen_s(&fUser, USER_DB_PATH.c_str(), "wb");
-	if (error == 0) {
-		cout << "Error: Cannot open USER_DB" << "\n";
-		return;
-	}
-	
-}
 
 int main(int argc, char** argv)
 {
