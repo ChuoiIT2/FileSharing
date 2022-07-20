@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 
 #pragma once
 
@@ -12,5 +13,9 @@ public:
 	Team();
 	Team(string _name);
 	~Team();
+	int readTeamDb(string, vector<Team>);
+	int createTeam(string , vector<Team> &, Team);
 };
+
+
 
