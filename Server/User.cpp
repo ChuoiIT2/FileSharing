@@ -1,9 +1,6 @@
-#include <iostream>
 #include "User.h"
-#include "json.hpp"
 
 using namespace std;
-using json = nlohmann::json;
 
 User::User() { }
 
@@ -14,12 +11,28 @@ User::User(string _username, string _password) {
 
 User::~User() { }
 
-json User::toJSON() {
-	json j = json{ { "username", username }, { "password", password } };
-	return j;
+int User::readUserDb(string USER_DB_PATH, vector<User> &users) {
+	FILE* fUser;
+	errno_t error = fopen_s(&fUser, USER_DB_PATH.c_str(), "rb");
+	if (error == 0) {
+		cout << "Error: Cannot open USER_DB" << "\n";
+		return 1;
+	}
+	fclose(fUser);
+	char buff[DB_BUFF];
+	int readBuff = fread_s(buff, DB_BUFF, 1, DB_BUFF, fUser);
+
+
+	return 0;
 }
 
-void User::fromJSON(const json& j) {
-	username = j["username"].get<string>();
-	password = j["password"].get<string>();
+int User::registerAccount(string USER_DB_PATH, vector<User> &users, User user) {
+	FILE* fUser;
+	errno_t error = fopen_s(&fUser, USER_DB_PATH.c_str(), "wb");
+	if (error == 0) {
+		cout << "Error: Cannot open USER_DB" << "\n";
+		return 1;
+	} else {
+		users.push_back(user);
+	}
 }

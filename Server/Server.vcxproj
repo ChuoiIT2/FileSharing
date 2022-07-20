@@ -148,12 +148,16 @@
     <ClInclude Include="json.hpp" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Team.h" />
     <ClInclude Include="User.h" />
+    <ClInclude Include="UserTeam.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="Team.cpp" />
     <ClCompile Include="User.cpp" />
+    <ClCompile Include="UserTeam.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
