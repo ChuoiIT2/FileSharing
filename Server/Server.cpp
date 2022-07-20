@@ -51,6 +51,9 @@ int main(int argc, char** argv)
 	}
 	cout << "Server is running at " << SERVER_HOST << ":" << SERVER_PORT << "\n";
 
+	User::readUserDb(USER_DB_PATH, users);
+	User::registerAccount(USER_DB_PATH, users, User("thai bach khoa", "123"));
+
     return 0;
 }
 
