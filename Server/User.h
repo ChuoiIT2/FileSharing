@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include "Helpers.h"
 
 #pragma once
 
@@ -16,7 +17,7 @@ public:
 	User();
 	User(string username, string password);
 	~User();
-	int readUserDb(string USER_DB_PATH, vector<User> &users);
-	int registerAccount(string USER_DB_PATH, vector<User> &users, User user);
+	static int readUserDb(string USER_DB_PATH, vector<User> &users);
+	static int registerAccount(string USER_DB_PATH, vector<User> &users, User user);
 };
 
