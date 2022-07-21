@@ -145,6 +145,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Helpers.h" />
     <ClInclude Include="json.hpp" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -153,6 +154,7 @@
     <ClInclude Include="UserTeam.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Helpers.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Team.cpp" />
