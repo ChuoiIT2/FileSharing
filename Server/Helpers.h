@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#define ROOT_DATA_PATH "data/"
+
 using namespace std;
 
 class Helpers {

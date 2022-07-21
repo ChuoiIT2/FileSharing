@@ -49,7 +49,6 @@ public:
 		while (fgets(buff, DB_BUFF, fUserTeam) != NULL) {
 			buff[strlen(buff) - 1] = 0;
 			vector<string> lines = Helpers::splitString(string(buff), ' ');
-			cout << buff << "\n";
 			if (lines.size() != 4) {
 				return 1;
 			}
@@ -58,15 +57,27 @@ public:
 			result.push_back(UserTeam(lines[0], lines[1], role, status));
 		}
 		usersTeams = result;
-
 		fclose(fUserTeam);
 		return 0;
+	}
+
+	static bool isInTeam(vector<UserTeam> usersTeams, string teamName, string username) {
+		for (auto userTeam : usersTeams) {
+			if (userTeam.getTeamName() == teamName
+				&& userTeam.getUsername() == username
+				&& userTeam.getStatus() == UserTeamStatus::IN) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	static bool isAdmin(vector<UserTeam> usersTeams, string teamName, string username) {
 		for (auto userTeam : usersTeams) {
 			if (userTeam.getTeamName() == teamName
 				&& userTeam.getUsername() == username
+				&& userTeam.getStatus() == UserTeamStatus::IN
 				&& userTeam.getRole() == Role::OWNER) {
 				return true;
 			}
@@ -106,7 +117,7 @@ public:
 			FILE* fUserTeam;
 			errno_t error = fopen_s(&fUserTeam, DB_PATH.c_str(), "at");
 			if (error != 0) {
-				cout << "Cannot open USER_TEAM_DB";
+				cout << "Error: Cannot open USER_TEAM_DB" << endl;
 				return RES_UNDEFINED_ERROR;
 			}
 
@@ -162,7 +173,7 @@ public:
 		FILE* fUserTeam;
 		errno_t error = fopen_s(&fUserTeam, DB_PATH.c_str(), "at");
 		if (error != 0) {
-			cout << "Cannot open USER_TEAM_DB";
+			cout << "Error: Cannot open USER_TEAM_DB" << endl;
 			return 1;
 		}
 		string data = username + " "
