@@ -1,4 +1,5 @@
 #include "Team.h"
+#include "Helpers.h"
 
 Team::Team() { }
 
@@ -43,7 +44,6 @@ int Team::readDb(vector<Team> &teams) {
 	return 0;
 }
 
-
 string Team::addTeam(vector<Team> &teams, Team team) {
 	FILE* fTeam;
 	errno_t error = fopen_s(&fTeam, DB_PATH.c_str(), "at");
@@ -56,10 +56,12 @@ string Team::addTeam(vector<Team> &teams, Team team) {
 		return RES_ADDTEAM_EXISTED;
 	} else {
 		teams.push_back(team);
-		string endLine = team.name;
+		string endLine = team.name + "\n";
 
 		fwrite(endLine.c_str(), sizeof(char), endLine.length(), fTeam);
 		fclose(fTeam);
+
+		_mkdir(team.name.c_str());
 
 		return RES_ADDTEAM_SUCCESS;
 	}

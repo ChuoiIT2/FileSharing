@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <direct.h>
 #include "protocols.h"
 
 #pragma once
