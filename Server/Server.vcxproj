@@ -151,10 +151,10 @@
     <ClInclude Include="Team.h" />
     <ClInclude Include="User.h" />
     <ClInclude Include="UserTeam.h" />
+    <ClCompile Include="protocols.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Helpers.cpp" />
-    <ClCompile Include="protocols.h" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Team.cpp" />

@@ -7,7 +7,9 @@
 
 using namespace std;
 
-#define DB_BUFF 20000
+#ifndef DB_BUFF
+#define DB_BUFF 200000
+#endif
 
 class Team {
 private:
