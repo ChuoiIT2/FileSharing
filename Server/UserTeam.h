@@ -2,6 +2,7 @@
 #include <vector>
 #include "Team.h"
 #include "User.h"
+#include "protocols.h"
 
 #pragma once
 
@@ -30,6 +31,9 @@ public:
 	UserTeam(string _username, string _teamName, Role _role, UserTeamStatus _status);
 	~UserTeam();
 	static string DB_PATH;
-	static string requestJoinTeam(string teamName, vector<UserTeam> usersTeams, User user);
+	static int writeToDb(vector<UserTeam> usersTeams);
+	static bool isAdmin(vector<UserTeam> usersTeams, string teamName, string username);
+	static string requestJoinTeam(vector<UserTeam> &usersTeams, string teamName, string username);
+	static string acceptRequest(vector<UserTeam> &usersTeams, string teamName, string OwnerUsername, string username);
 };
 
