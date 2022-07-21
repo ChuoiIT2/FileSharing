@@ -19,12 +19,13 @@ public:
 	Team();
 	Team(string _name);
 	~Team();
+
 	static string DB_PATH;
 
 	string getName();
 	void setName(string);
-	int readTeamDb(vector<Team> &);
-	static string addTeam(vector<Team> &, Team);
+	static int readTeamDb(vector<Team> &);
+	static string createTeam(vector<UserTeam> &, vector<Team> &, Team, string);
 	static bool isExisted(vector<Team>, string);
 };
 

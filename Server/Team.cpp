@@ -1,4 +1,6 @@
 #include "Team.h"
+#include "User.h"
+#include "UserTeam.h"
 
 Team::Team() { }
 
@@ -32,7 +34,6 @@ int Team::readTeamDb(vector<Team> &teams) {
 		string name(buff);
 		tmp.push_back(Team(name));
 	}
-
 	teams = tmp;
 
 	fclose(fTeam);
@@ -40,7 +41,7 @@ int Team::readTeamDb(vector<Team> &teams) {
 }
 
 
-string Team::addTeam(vector<Team> &teams, Team team) {
+string Team::createTeam(vector<UserTeam> &userTeams, vector<Team> &teams, Team team, string userName) {
 	FILE* fTeam;
 	errno_t error = fopen_s(&fTeam, DB_PATH.c_str(), "at");
 	if (error != 0) {
@@ -52,7 +53,10 @@ string Team::addTeam(vector<Team> &teams, Team team) {
 		return RES_ADDTEAM_EXISTED;
 	} else {
 		teams.push_back(team);
-		string endLine = team.name;
+		if (UserTeam::createTeam(userTeams, teamName, userName)) {
+			return RES_UNDEFINED_ERROR;
+		}
+		string endLine = teamName + "\n";
 		
 		fwrite(endLine.c_str(), sizeof(char), endLine.length(), fTeam);
 		fclose(fTeam);
@@ -72,12 +76,3 @@ bool Team::isExisted(vector<Team> teams, string teamName) {
 		return 0;
 	}
 }
-
-
-
-
-
-
-
-
-
