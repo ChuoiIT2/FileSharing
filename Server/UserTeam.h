@@ -26,5 +26,6 @@ private:
 public:
 	UserTeam(string _username, string _teamName, Role _role, UserTeamStatus _status);
 	~UserTeam();
+	static string DB_PATH;
 };
 

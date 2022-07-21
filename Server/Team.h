@@ -12,5 +12,6 @@ public:
 	Team();
 	Team(string _name);
 	~Team();
+	static string DB_PATH;
 };
 

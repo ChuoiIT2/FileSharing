@@ -1,6 +1,3 @@
-// Server.cpp : Defines the entry point for the console application.
-//
-
 #include "stdafx.h"
 #include <iostream>
 #include <string>
@@ -9,14 +6,10 @@
 #include "Team.h"
 #include "UserTeam.h"
 
-#define DB_BUFF 200000
-
 using namespace std;
 
 string SERVER_HOST;
 int SERVER_PORT;
-string USER_DB_PATH, TEAM_DB_PATH, USER_TEAM_DB_PATH;
-FILE *fUser, *fTeam, *fUserTeam;
 vector<User> users;
 vector<Team> teams;
 vector<UserTeam> userTeams;
@@ -31,28 +24,25 @@ vector<UserTeam> userTeams;
 */
 int handleArguments(int argc, char** argv) {
 	if (argc != 6) {
-		return 0;
+		return 1;
 	}
 	char* stopString;
 	SERVER_HOST = string(argv[1]);
 	SERVER_PORT = strtoul(argv[2], &stopString, 10);
-	USER_DB_PATH = string(argv[3]);
-	TEAM_DB_PATH = string(argv[4]);
-	USER_TEAM_DB_PATH = string(argv[5]);
-	return 1;
+	User::DB_PATH = string(argv[3]);
+	Team::DB_PATH = string(argv[4]);
+	UserTeam::DB_PATH = string(argv[5]);
+	return 0;
 }
 
 
 int main(int argc, char** argv)
 {
-	if (!handleArguments(argc, argv)) {
+	if (handleArguments(argc, argv) != 0) {
 		cout << "Invalid arguments, please try again\n";
 		return 0;
 	}
 	cout << "Server is running at " << SERVER_HOST << ":" << SERVER_PORT << "\n";
-
-	User::readUserDb(USER_DB_PATH, users);
-	User::registerAccount(USER_DB_PATH, users, User("thai bach khoa", "123"));
 
     return 0;
 }
