@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <direct.h>
 #include "protocols.h"
 
 #pragma once
@@ -23,6 +24,7 @@ public:
 	static string DB_PATH;
 
 	string getName();
+	string toString();
 	void setName(string);
 	static int readTeamDb(vector<Team> &teams);
 	static string createTeam(vector<UserTeam> &userTeams, vector<Team> &teams, Team team, string userName);

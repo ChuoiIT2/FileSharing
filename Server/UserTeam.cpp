@@ -9,6 +9,13 @@ UserTeam::UserTeam(string _username, string _teamName, Role _role = MEMBER, User
 
 UserTeam::~UserTeam() { }
 
+string UserTeam::toString() {
+	return username + " "
+		+ teamName + " "
+		+ (role == Role::OWNER ? "OWNER " : "MEMBER ")
+		+ (status == UserTeamStatus::IN ? "IN" : "PENDING");
+}
+
 int UserTeam::writeToDb(vector<UserTeam> usersTeams) {
 	FILE* fUserTeam;
 	errno_t error = fopen_s(&fUserTeam, DB_PATH.c_str(), "wt");
@@ -31,7 +38,7 @@ int UserTeam::writeToDb(vector<UserTeam> usersTeams) {
 	return 0;
 }
 
-int UserTeam::readUserTeamDb(vector<UserTeam> &usersTeams) {
+int UserTeam::readDb(vector<UserTeam> &usersTeams) {
 	FILE* fUserTeam;
 	errno_t error = fopen_s(&fUserTeam, DB_PATH.c_str(), "rt");
 	if (error) {
@@ -43,7 +50,8 @@ int UserTeam::readUserTeamDb(vector<UserTeam> &usersTeams) {
 	vector<UserTeam> result;
 	while (fgets(buff, DB_BUFF, fUserTeam) != NULL) {
 		buff[strlen(buff) - 1] = 0;
-		vector<string> lines = Helpers::splitString(string(buff), '\n');
+		vector<string> lines = Helpers::splitString(string(buff), ' ');
+		cout << buff << "\n";
 		if (lines.size() != 4) {
 			return 1;
 		}
@@ -152,7 +160,7 @@ int UserTeam::createTeam(vector<UserTeam> &usersTeams, string teamName, string u
 		+ to_string(Role::OWNER) + " "
 		+ to_string(UserTeamStatus::IN) + "\n";
 	fwrite(data.c_str(), sizeof(char), data.length(), fUserTeam);
-	usersTeams.push_back(UserTeam(username, teamName, Role::MEMBER, UserTeamStatus::IN));
+	usersTeams.push_back(UserTeam(username, teamName, Role::OWNER, UserTeamStatus::IN));
 
 	fclose(fUserTeam);
 	return 0;

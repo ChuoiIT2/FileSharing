@@ -27,3 +27,8 @@ int Helpers::toInt(char* str) {
 	char* stopString;
 	return strtol(str, &stopString, 10);
 }
+
+const wchar_t* Helpers::to_wchar_t(string str) {
+	wstring widestr = wstring(str.begin(), str.end());
+	return widestr.c_str();
+}

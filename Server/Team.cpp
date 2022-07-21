@@ -1,5 +1,6 @@
 #include "Team.h"
 #include "User.h"
+#include "Helpers.h"
 #include "UserTeam.h"
 
 Team::Team() { }
@@ -13,6 +14,10 @@ Team::~Team() {
 }
 
 string Team::getName() {
+	return name;
+}
+
+string Team::toString() {
 	return name;
 }
 

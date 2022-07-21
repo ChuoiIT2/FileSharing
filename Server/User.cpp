@@ -24,7 +24,11 @@ string User::getPassword() {
 	return password;
 }
 
-int User::readUserDb(vector<User> &users) {
+string User::toString() {
+	return username + " " + password;
+}
+
+int User::readDb(vector<User> &users) {
 	FILE* fUser;
 	errno_t error = fopen_s(&fUser, DB_PATH.c_str(), "rt");
 	if (error != 0) {
@@ -36,7 +40,7 @@ int User::readUserDb(vector<User> &users) {
 	vector<User> result;
 	while (fgets(buff, DB_BUFF, fUser) != NULL) {
 		buff[strlen(buff) - 1] = 0;
-		vector<string> lines = Helpers::splitString(string(buff), '\n');
+		vector<string> lines = Helpers::splitString(string(buff), ' ');
 		if (lines.size() != 2) {
 			return 1;
 		}
@@ -71,7 +75,7 @@ string User::registerAccount(vector<User> &users, User user) {
 	}
 }
 
-string User::checkLogin(vector<User> &users, User user) {
+string User::checkLogin(vector<User> users, User user) {
 	for (auto _user : users) {
 		if (_user.username == user.username && _user.password == user.password) {
 			return RES_LOGIN_SUCCESS;

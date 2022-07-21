@@ -36,6 +36,31 @@ int handleArguments(int argc, char** argv) {
 	return 0;
 }
 
+void testClasses() {
+	User::readDb(users);
+	Team::readDb(teams);
+	UserTeam::readDb(usersTeams);
+
+	cout << "\nUSERS:\n";
+	for (auto user : users) {
+		cout << user.toString() << "\n";
+	}
+	cout << "\nTEAMS:\n";
+	for (auto team : teams) {
+		cout << team.toString() << "\n";
+	}
+	cout << "\nUSERS_TEAMS:\n";
+	for (auto userTeam : usersTeams) {
+		cout << userTeam.toString() << "\n";
+	}
+
+	cout << "\nTEST LOGIN:\n";
+	cout << "admin-admin: " << User::checkLogin(users, User("admin", "admin")) << endl;
+	cout << "wrong-wrong: " << User::checkLogin(users, User("wrong", "wrong")) << endl;
+
+	cout << "\nTEST ADDTEAM:\n";
+	cout << Team::addTeam(teams, Team("team2"));
+}
 
 int main(int argc, char** argv) {
 	if (handleArguments(argc, argv) != 0) {
@@ -43,6 +68,8 @@ int main(int argc, char** argv) {
 		return 0;
 	}
 	cout << "Server is running at " << SERVER_HOST << ":" << SERVER_PORT << "\n";
+
+	testClasses();
 
 	return 0;
 }
