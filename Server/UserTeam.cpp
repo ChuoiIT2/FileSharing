@@ -1,4 +1,5 @@
 #include "UserTeam.h"
+#include "protocols.h"
 
 UserTeam::UserTeam(string _username, string _teamName, Role _role = MEMBER, UserTeamStatus _status = PENDING) {
 	username = _username;
@@ -8,3 +9,108 @@ UserTeam::UserTeam(string _username, string _teamName, Role _role = MEMBER, User
 }
 
 UserTeam::~UserTeam() { }
+
+int UserTeam::writeToDb(vector<UserTeam> usersTeams) {
+	FILE* fUserTeam;
+	errno_t error = fopen_s(&fUserTeam, DB_PATH.c_str(), "wt");
+	if (error) {
+		cout << "Error: Cannot open USER_TEAM_DB" << "\n";
+		return 1;
+	}
+
+	string buff = "";
+	for (auto userTeam : usersTeams) {
+		buff += userTeam.username + " "
+			+ userTeam.teamName + " "
+			+ to_string(userTeam.role) + " "
+			+ to_string(userTeam.status)
+			+ "\n";
+	}
+	fwrite(buff.c_str(), sizeof(char), buff.size(), fUserTeam);
+	fclose(fUserTeam);
+
+	return 0;
+}
+
+bool UserTeam::isAdmin(vector<UserTeam> usersTeams, string teamName, string username) {
+	for (auto userTeam : usersTeams) {
+		if (userTeam.teamName == teamName
+			&& userTeam.username == username
+			&& userTeam.role == Role::OWNER) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+string UserTeam::requestJoinTeam(vector<UserTeam> &usersTeams, string teamName, string username) {
+	// check if team exist, leave util Team is completed
+	if (true) {
+		// Check the request existant
+		for (auto userTeam : usersTeams) {
+			if (userTeam.username == username) {
+				if (userTeam.status == UserTeamStatus::IN) {
+					// Case already active in team
+					return RES_JOIN_ALREADY_IN;
+				} else {
+					// Case the request is pending
+					return RES_JOIN_SUCCESS;
+				}
+			}
+		}
+
+		FILE* fUserTeam;
+		errno_t error = fopen_s(&fUserTeam, DB_PATH.c_str(), "at");
+		if (error != 0) {
+			cout << "Cannot open USER_TEAM_DB";
+			return RES_UNDEFINED_ERROR;
+		}
+
+		string buff = username + " "
+			+ teamName + " "
+			+ to_string(Role::MEMBER) + " "
+			+ to_string(UserTeamStatus::PENDING)
+			+ "\n";
+		fwrite(buff.c_str(), sizeof(char), buff.size(), fUserTeam);
+
+		usersTeams.push_back(UserTeam(username, teamName));
+
+		return RES_JOIN_SUCCESS;
+	} else {
+		return RES_JOIN_NOT_EXIST;
+	}
+}
+
+string UserTeam::acceptRequest(vector<UserTeam> &usersTeams, string teamName, string ownerUsername, string username) {
+	// check if team exist, leave util Team is completed
+	if (true) {
+		// Check isAdmin
+		if (!isAdmin(usersTeams, teamName, username)) {
+			return RES_FORBIDDEN_ERROR;
+		}
+		bool hasRequest = false;
+		int indexReq = -1;
+		for (int i = 0, len = usersTeams.size(); i < len; i++) {
+			if (usersTeams[i].teamName == teamName
+				&& usersTeams[i].username == username
+				&& usersTeams[i].status == UserTeamStatus::PENDING) {
+				hasRequest = true;
+				indexReq = i;
+				break;
+			}
+		}
+
+		if (!hasRequest) {
+			return RES_ACCEPT_NO_REQUEST;
+		} else {
+			usersTeams[indexReq].status = UserTeamStatus::IN;
+			if (writeToDb(usersTeams) == 1) {
+				return RES_UNDEFINED_ERROR;
+			}
+			return RES_ACCEPT_SUCCESS;
+		}
+	} else {
+		return RES_ACCEPT_NO_REQUEST;
+	}
+}

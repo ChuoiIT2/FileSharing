@@ -1,19 +1,23 @@
 #include <iostream>
+#include <vector>
+#include "Team.h"
+#include "User.h"
+#include "protocols.h"
 
 #pragma once
 
 using namespace std;
 
 enum Role {
-	OWNER,
-	MEMBER
+	OWNER = 0,
+	MEMBER = 1
 };
 
 // Pending: user has requested to team, but haven't been in team 
 // In: user is already in team
 enum UserTeamStatus {
-	PENDING,
-	IN
+	PENDING = 0,
+	IN = 1
 };
 
 class UserTeam {
@@ -27,5 +31,9 @@ public:
 	UserTeam(string _username, string _teamName, Role _role, UserTeamStatus _status);
 	~UserTeam();
 	static string DB_PATH;
+	static int writeToDb(vector<UserTeam> usersTeams);
+	static bool isAdmin(vector<UserTeam> usersTeams, string teamName, string username);
+	static string requestJoinTeam(vector<UserTeam> &usersTeams, string teamName, string username);
+	static string acceptRequest(vector<UserTeam> &usersTeams, string teamName, string OwnerUsername, string username);
 };
 

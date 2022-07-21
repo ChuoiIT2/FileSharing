@@ -146,7 +146,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Server\Helpers.h" />
-    <ClInclude Include="..\Server\json.hpp" />
     <ClInclude Include="..\Server\Team.h" />
     <ClInclude Include="..\Server\User.h" />
     <ClInclude Include="..\Server\UserTeam.h" />
