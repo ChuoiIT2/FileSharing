@@ -38,7 +38,7 @@ int UserTeam::writeToDb(vector<UserTeam> usersTeams) {
 	return 0;
 }
 
-int UserTeam::readUserTeamDb(vector<UserTeam> &usersTeams) {
+int UserTeam::readDb(vector<UserTeam> &usersTeams) {
 	FILE* fUserTeam;
 	errno_t error = fopen_s(&fUserTeam, DB_PATH.c_str(), "rt");
 	if (error) {
@@ -50,7 +50,8 @@ int UserTeam::readUserTeamDb(vector<UserTeam> &usersTeams) {
 	vector<UserTeam> result;
 	while (fgets(buff, DB_BUFF, fUserTeam) != NULL) {
 		buff[strlen(buff) - 1] = 0;
-		vector<string> lines = Helpers::splitString(string(buff), '\n');
+		vector<string> lines = Helpers::splitString(string(buff), ' ');
+		cout << buff << "\n";
 		if (lines.size() != 4) {
 			return 1;
 		}
