@@ -6,6 +6,9 @@
 #include "Team.h"
 #include "UserTeam.h"
 #include "Helpers.h"
+#include "UserService.h"
+#include "TeamService.h"
+#include "UserTeamService.h"
 
 using namespace std;
 
@@ -14,7 +17,7 @@ int SERVER_PORT;
 vector<User> users;
 vector<Team> teams;
 vector<UserTeam> usersTeams;
-string User::DB_PATH, Team::DB_PATH, UserTeam::DB_PATH;
+string UserService::DB_PATH, TeamService::DB_PATH, UserTeamService::DB_PATH;
 
 /**
 * @function handleArguments: set port number for server from arguments user entered when start
@@ -30,16 +33,16 @@ int handleArguments(int argc, char** argv) {
 	}
 	SERVER_HOST = string(argv[1]);
 	SERVER_PORT = Helpers::toInt(argv[2]);
-	User::DB_PATH = string(argv[3]);
-	Team::DB_PATH = string(argv[4]);
-	UserTeam::DB_PATH = string(argv[5]);
+	UserService::DB_PATH = string(argv[3]);
+	TeamService::DB_PATH = string(argv[4]);
+	UserTeamService::DB_PATH = string(argv[5]);
 	return 0;
 }
 
 void testClasses() {
-	User::readDb(users);
-	Team::readDb(teams);
-	UserTeam::readDb(usersTeams);
+	UserService::readDb(users);
+	TeamService::readDb(teams);
+	UserTeamService::readDb(usersTeams);
 
 	cout << "\nUSERS:\n";
 	for (auto user : users) {
@@ -55,11 +58,11 @@ void testClasses() {
 	}
 
 	cout << "\nTEST LOGIN:\n";
-	cout << "admin-admin: " << User::checkLogin(users, User("admin", "admin")) << endl;
-	cout << "wrong-wrong: " << User::checkLogin(users, User("wrong", "wrong")) << endl;
+	cout << "admin-admin: " << UserService::checkLogin(users, User("admin", "admin")) << endl;
+	cout << "wrong-wrong: " << UserService::checkLogin(users, User("wrong", "wrong")) << endl;
 
 	cout << "\nTEST ADDTEAM:\n";
-	cout << Team::addTeam(teams, Team("team2"));
+	cout << TeamService::createTeam(usersTeams, teams, Team("team2"), "admin");
 }
 
 int main(int argc, char** argv) {

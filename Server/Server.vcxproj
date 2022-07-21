@@ -149,9 +149,12 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Team.h" />
+    <ClInclude Include="TeamService.h" />
     <ClInclude Include="User.h" />
+    <ClInclude Include="UserService.h" />
     <ClInclude Include="UserTeam.h" />
     <ClCompile Include="protocols.h" />
+    <ClInclude Include="UserTeamService.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Helpers.cpp" />
