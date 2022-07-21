@@ -18,6 +18,10 @@ void Team::setName(string _name) {
 	name = _name;
 }
 
+string Team::toString() {
+	return name;
+}
+
 int Team::readTeamDb(vector<Team> &teams) {
 	FILE* fTeam;
 	errno_t error = fopen_s(&fTeam, DB_PATH.c_str(), "rt");
