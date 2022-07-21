@@ -39,6 +39,15 @@
     <ClCompile Include="protocols.h">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClInclude Include="UserService.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TeamService.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UserTeamService.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

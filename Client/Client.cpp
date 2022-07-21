@@ -2,11 +2,11 @@
 //
 
 #include "stdafx.h"
-#include "../Server/User.h"
-#include "../Server/Team.h"
-#include "../Server/UserTeam.h"
+#include "../Server/UserService.h"
+#include "../Server/TeamService.h"
+#include "../Server/UserTeamService.h"
 
-string User::DB_PATH, Team::DB_PATH, UserTeam::DB_PATH;
+string UserService::DB_PATH, TeamService::DB_PATH, UserTeamService::DB_PATH;
 
 int main()
 {
