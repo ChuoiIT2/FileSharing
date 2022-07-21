@@ -34,7 +34,8 @@ public:
 	static int writeToDb(vector<UserTeam> usersTeams);
 	static int readUserTeamDb(vector<UserTeam> &usersTeams);
 	static bool isAdmin(vector<UserTeam> usersTeams, string teamName, string username);
-	static string requestJoinTeam(vector<UserTeam> &usersTeams, string teamName, string username);
-	static string acceptRequest(vector<UserTeam> &usersTeams, string teamName, string OwnerUsername, string username);
+	static string requestJoinTeam(vector<UserTeam> &usersTeams, vector<Team> teams, string teamName, string username);
+	static string acceptRequest(vector<UserTeam> &usersTeams, vector<Team> teams, string teamName, string OwnerUsername, string username);
+	static int createTeam(vector<UserTeam> &usersTeams, string teamName, string username);
 };
 
