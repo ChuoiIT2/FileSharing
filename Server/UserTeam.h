@@ -29,14 +29,14 @@ private:
 
 public:
 	UserTeam(string _username, string _teamName, Role _role, UserTeamStatus _status);
+	UserTeam(string _username, string _teamName);
 	~UserTeam();
-	static string DB_PATH;
+
+	string getUsername();
+	string getTeamName();
+	Role getRole();
+	UserTeamStatus getStatus();
+	void setStatus(UserTeamStatus _status);
 	string toString();
-	static int writeToDb(vector<UserTeam> usersTeams);
-	static int readDb(vector<UserTeam> &usersTeams);
-	static bool isAdmin(vector<UserTeam> usersTeams, string teamName, string username);
-	static string requestJoinTeam(vector<UserTeam> &usersTeams, vector<Team> teams, string teamName, string username);
-	static string acceptRequest(vector<UserTeam> &usersTeams, vector<Team> teams, string teamName, string OwnerUsername, string username);
-	static int createTeam(vector<UserTeam> &usersTeams, string teamName, string username);
 };
 
