@@ -21,7 +21,6 @@ string User::getUsername() {
 }
 
 string User::getPassword() {
-
 	return password;
 }
 
