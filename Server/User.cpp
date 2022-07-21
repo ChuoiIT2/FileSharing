@@ -16,6 +16,14 @@ User::User(string _username, string _password) {
 
 User::~User() { }
 
+string User::getUsername() {
+	return username;
+}
+
+string User::getPassword() {
+	return password;
+}
+
 int User::readUserDb(vector<User> &users) {
 	FILE* fUser;
 	errno_t error = fopen_s(&fUser, DB_PATH.c_str(), "rt");
@@ -55,4 +63,13 @@ int User::registerAccount(vector<User> &users, User user) {
 		fclose(fUser);
 		return 0;
 	}
+}
+
+bool User::checkLogin(vector<User> &users, User user) {
+	for (auto _user : users) {
+		if (_user.username == user.username && _user.password == user.password) {
+			return true;
+		}
+	}
+	return false;
 }

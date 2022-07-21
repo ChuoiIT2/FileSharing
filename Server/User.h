@@ -18,8 +18,11 @@ public:
 	User();
 	User(string username, string password);
 	~User();
+	string getUsername();
+	string getPassword();
 	static string DB_PATH;
 	static int readUserDb(vector<User> &users);
 	static int registerAccount(vector<User> &users, User user);
+	static bool checkLogin(vector<User> &users, User user);
 };
 
