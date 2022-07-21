@@ -1,7 +1,4 @@
-#include <iostream>
-#include <algorithm>
 #include "Team.h"
-#include <fstream>
 
 Team::Team() { }
 
@@ -22,12 +19,18 @@ void Team::setName(string _name) {
 }
 
 int Team::readTeamDb(vector<Team> &teams) {
-	ifstream theFile(DB_PATH);
-	string name;
-	while (getline(theFile, name)) {
-		Team team = Team(name);
-		teams.push_back(team);
+	FILE* fTeam;
+	errno_t error = fopen_s(&fTeam, DB_PATH.c_str(), "rt");
+	if (error != 0) {
+		cout << "Error: Cannot open TEAM DB" << endl;
 	}
+	char buff[DB_BUFF];
+	while (fgets(buff, DB_BUFF, fTeam) != NULL) {
+		buff[strcspn(buff, "\n")] = 0;
+		string name(buff);
+		teams.push_back(Team(name));
+	}
+	fclose(fTeam);
 }
 
 

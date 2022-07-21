@@ -1,12 +1,12 @@
 #include <iostream>
 #include <vector>
-#include "Helpers.h"
+#include <algorithm>
 
 #pragma once
 
 using namespace std;
 
-#define DB_BUFF 2000
+#define DB_BUFF 20000
 
 class Team {
 private:
