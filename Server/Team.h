@@ -14,7 +14,7 @@ public:
 	Team(string _name);
 	~Team();
 	int readTeamDb(string, vector<Team>);
-	int createTeam(string , vector<Team> &, Team);
+	static int createTeam(vector<Team>, Team);
 	static string DB_PATH;
 };
 

@@ -11,14 +11,27 @@ Team::~Team() {
 	name = "";
 }
 
-int Team::createTeam(string TEAM_DB_PATH, vector<Team> &teams, Team team) {
+
+int Team::createTeam(vector<Team> teams, Team team) {
 	FILE* fTeam;
-	errno_t error = fopen_s(&fTeam, TEAM_DB_PATH.c_str(), "wb");
-	if (error == 0) {
-		cout << "Error: Cannot open TEAM_DB" << "\n";
+	errno_t error = fopen_s(&fTeam, DB_PATH.c_str(), "at");
+	if (error != 0) {
+		cout << "Error: Cannot open TEAM DB" << endl;
 		return 1;
 	} else {
 		teams.push_back(team);
+		string endLine = team.name;
+		
+		fwrite(endLine.c_str(), sizeof(char), endLine.length(), fTeam);
+		fclose(fTeam);
+
 		return 0;
 	}
 }
+
+
+
+
+
+
+
