@@ -154,6 +154,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Helpers.cpp" />
+    <ClCompile Include="protocols.h" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Team.cpp" />
