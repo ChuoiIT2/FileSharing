@@ -33,9 +33,6 @@
     <ClInclude Include="..\Server\UserTeam.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Server\json.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\Server\Helpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
