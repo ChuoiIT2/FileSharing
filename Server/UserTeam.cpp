@@ -8,3 +8,13 @@ UserTeam::UserTeam(string _username, string _teamName, Role _role = MEMBER, User
 }
 
 UserTeam::~UserTeam() { }
+
+string UserTeam::requestJoinTeam(string teamName, vector<UserTeam> usersTeams, User user) {
+	// check if team exist, leave util Team is completed
+	if (true) {
+		FILE* fUserTeam;
+		fopen_s(&fUserTeam, DB_PATH.c_str(), "at") {
+			
+		}
+	}
+}

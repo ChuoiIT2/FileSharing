@@ -12,7 +12,7 @@ string SERVER_HOST;
 int SERVER_PORT;
 vector<User> users;
 vector<Team> teams;
-vector<UserTeam> userTeams;
+vector<UserTeam> usersTeams;
 
 /**
 * @function handleArguments: set port number for server from arguments user entered when start
