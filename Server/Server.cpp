@@ -9,6 +9,7 @@
 #include "UserService.h"
 #include "TeamService.h"
 #include "UserTeamService.h"
+#include "FileService.h"
 
 using namespace std;
 
@@ -67,7 +68,14 @@ void testClasses() {
 	cout << "wrong-wrong: " << UserService::checkLogin(users, User("wrong", "wrong")) << endl;
 
 	cout << "\nTEST ADDTEAM:\n";
-	cout << TeamService::createTeam(usersTeams, teams, Team("team2"), "admin");
+	cout << TeamService::createTeam(usersTeams, teams, Team("Team space"), "admin") << endl;
+
+	cout << "\nTEST VIEW STRUCTURE:\n";
+	vector<string> files;
+	cout << FileService::viewFileStructure(usersTeams, "team1", "admin", files) << endl;
+	for (auto file : files) {
+		cout << file << "\n";
+	}
 }
 
 int main(int argc, char** argv) {
