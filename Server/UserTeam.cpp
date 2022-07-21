@@ -1,4 +1,5 @@
 #include "UserTeam.h"
+#include ""
 
 UserTeam::UserTeam(string _username, string _teamName, Role _role = MEMBER, UserTeamStatus _status = PENDING) {
 	username = _username;
@@ -13,8 +14,10 @@ string UserTeam::requestJoinTeam(string teamName, vector<UserTeam> usersTeams, U
 	// check if team exist, leave util Team is completed
 	if (true) {
 		FILE* fUserTeam;
-		fopen_s(&fUserTeam, DB_PATH.c_str(), "at") {
-			
+		errno_t error = fopen_s(&fUserTeam, DB_PATH.c_str(), "at");
+		if (error != 0) {
+			cout << "Cannot open USER_TEAM_DB";
+
 		}
 	}
 }
