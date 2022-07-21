@@ -2,6 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include "Helpers.h"
+#include "protocols.h"
 
 #pragma once
 
@@ -22,7 +23,7 @@ public:
 	string getPassword();
 	static string DB_PATH;
 	static int readUserDb(vector<User> &users);
-	static int registerAccount(vector<User> &users, User user);
-	static bool checkLogin(vector<User> &users, User user);
+	static string registerAccount(vector<User> &users, User user);
+	static string checkLogin(vector<User> &users, User user);
 };
 
