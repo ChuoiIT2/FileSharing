@@ -160,7 +160,7 @@ int UserTeam::createTeam(vector<UserTeam> &usersTeams, string teamName, string u
 		+ to_string(Role::OWNER) + " "
 		+ to_string(UserTeamStatus::IN) + "\n";
 	fwrite(data.c_str(), sizeof(char), data.length(), fUserTeam);
-	usersTeams.push_back(UserTeam(username, teamName, Role::MEMBER, UserTeamStatus::IN));
+	usersTeams.push_back(UserTeam(username, teamName, Role::OWNER, UserTeamStatus::IN));
 
 	fclose(fUserTeam);
 	return 0;
