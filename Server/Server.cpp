@@ -14,6 +14,7 @@ int SERVER_PORT;
 vector<User> users;
 vector<Team> teams;
 vector<UserTeam> usersTeams;
+string User::DB_PATH, Team::DB_PATH, UserTeam::DB_PATH;
 
 /**
 * @function handleArguments: set port number for server from arguments user entered when start
@@ -36,14 +37,13 @@ int handleArguments(int argc, char** argv) {
 }
 
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv) {
 	if (handleArguments(argc, argv) != 0) {
 		cout << "Invalid arguments, please try again\n";
 		return 0;
 	}
 	cout << "Server is running at " << SERVER_HOST << ":" << SERVER_PORT << "\n";
 
-    return 0;
+	return 0;
 }
 
