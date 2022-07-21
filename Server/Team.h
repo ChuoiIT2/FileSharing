@@ -24,9 +24,9 @@ public:
 
 	string getName();
 	void setName(string);
-	static int readTeamDb(vector<Team> &);
-	static string createTeam(vector<UserTeam> &, vector<Team> &, Team, string);
-	static bool isExisted(vector<Team>, string);
+	static int readTeamDb(vector<Team> &teams);
+	static string createTeam(vector<UserTeam> &userTeams, vector<Team> &teams, Team team, string userName);
+	static bool isExisted(vector<Team> teams, string teamName);
 };
 
 
