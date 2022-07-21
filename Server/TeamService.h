@@ -6,6 +6,7 @@
 #include "UserTeam.h"
 #include "UserTeamService.h"
 #include "protocols.h"
+#include "Helpers.h"
 
 class TeamService {
 private:
@@ -58,16 +59,17 @@ public:
 		if (isExisted(teams, teamName)) {
 			return RES_ADDTEAM_EXISTED;
 		} else {
-			teams.push_back(team);
 			if (UserTeamService::createTeam(userTeams, teamName, username)) {
 				return RES_UNDEFINED_ERROR;
 			}
+			teams.push_back(team);
 			string endLine = teamName + "\n";
 
 			fwrite(endLine.c_str(), sizeof(char), endLine.length(), fTeam);
 			fclose(fTeam);
 
-			_mkdir(teamName.c_str());
+			string path = ROOT_DATA_PATH + teamName;
+			_mkdir(path.c_str());
 
 			return RES_ADDTEAM_SUCCESS;
 		}
