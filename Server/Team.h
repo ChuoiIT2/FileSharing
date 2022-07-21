@@ -22,6 +22,7 @@ public:
 	static string DB_PATH;
 
 	string getName();
+	string toString();
 	void setName(string);
 	int readTeamDb(vector<Team> &);
 	static string addTeam(vector<Team> &, Team);

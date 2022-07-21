@@ -9,6 +9,13 @@ UserTeam::UserTeam(string _username, string _teamName, Role _role = MEMBER, User
 
 UserTeam::~UserTeam() { }
 
+string UserTeam::toString() {
+	return username + " "
+		+ teamName + " "
+		+ (role == Role::OWNER ? "OWNER " : "MEMBER ")
+		+ (status == UserTeamStatus::IN ? "IN" : "PENDING");
+}
+
 int UserTeam::writeToDb(vector<UserTeam> usersTeams) {
 	FILE* fUserTeam;
 	errno_t error = fopen_s(&fUserTeam, DB_PATH.c_str(), "wt");

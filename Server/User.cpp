@@ -24,6 +24,10 @@ string User::getPassword() {
 	return password;
 }
 
+string User::toString() {
+	return username + " " + password;
+}
+
 int User::readUserDb(vector<User> &users) {
 	FILE* fUser;
 	errno_t error = fopen_s(&fUser, DB_PATH.c_str(), "rt");

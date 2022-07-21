@@ -31,6 +31,7 @@ public:
 	UserTeam(string _username, string _teamName, Role _role, UserTeamStatus _status);
 	~UserTeam();
 	static string DB_PATH;
+	string toString();
 	static int writeToDb(vector<UserTeam> usersTeams);
 	static int readUserTeamDb(vector<UserTeam> &usersTeams);
 	static bool isAdmin(vector<UserTeam> usersTeams, string teamName, string username);
