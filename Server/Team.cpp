@@ -66,6 +66,8 @@ string Team::createTeam(vector<UserTeam> &userTeams, vector<Team> &teams, Team t
 		fwrite(endLine.c_str(), sizeof(char), endLine.length(), fTeam);
 		fclose(fTeam);
 
+		mkdir(teamName.c_str());
+
 		return RES_ADDTEAM_SUCCESS;
 	}
 }
