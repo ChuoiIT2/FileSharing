@@ -31,19 +31,18 @@ int User::readUserDb(vector<User> &users) {
 		cout << "Error: Cannot open USER_DB" << "\n";
 		return 1;
 	}
+
 	char buff[DB_BUFF];
-	int readBuff = fread_s(buff, DB_BUFF, 1, DB_BUFF, fUser);
-	buff[readBuff] = 0;
-	vector<string> lines = Helpers::splitString(string(buff), '\n');
-	users.clear();
-	for (auto line : lines) {
-		vector<string> rawLine = Helpers::splitString(line, ' ');
-		if (rawLine.size() != 2) {
-			continue;
-		} else {
-			users.push_back(User(rawLine[0], rawLine[1]));
+	vector<User> result;
+	while (fgets(buff, DB_BUFF, fUser) != NULL) {
+		buff[strlen(buff) - 1] = 0;
+		vector<string> lines = Helpers::splitString(string(buff), '\n');
+		if (lines.size() != 2) {
+			return 1;
 		}
+		result.push_back(User(lines[0], lines[1]));
 	}
+	users = result;
 
 	fclose(fUser);
 	return 0;

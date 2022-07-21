@@ -32,6 +32,32 @@ int UserTeam::writeToDb(vector<UserTeam> usersTeams) {
 	return 0;
 }
 
+int UserTeam::readUserTeamDb(vector<UserTeam> &usersTeams) {
+	FILE* fUserTeam;
+	errno_t error = fopen_s(&fUserTeam, DB_PATH.c_str(), "rt");
+	if (error) {
+		cout << "Error: Cannot open USER_TEAM_DB" << "\n";
+		return 1;
+	}
+
+	char buff[DB_BUFF];
+	vector<UserTeam> result;
+	while (fgets(buff, DB_BUFF, fUserTeam) != NULL) {
+		buff[strlen(buff) - 1] = 0;
+		vector<string> lines = Helpers::splitString(string(buff), '\n');
+		if (lines.size() != 4) {
+			return 1;
+		}
+		Role role = stoi(lines[2]) == Role::OWNER ? Role::OWNER : Role::MEMBER;
+		UserTeamStatus status = stoi(lines[3]) == UserTeamStatus::IN ? UserTeamStatus::IN : UserTeamStatus::PENDING;
+		result.push_back(UserTeam(lines[0], lines[1], role, status));
+	}
+	usersTeams = result;
+
+	fclose(fUserTeam);
+	return 0;
+}
+
 bool UserTeam::isAdmin(vector<UserTeam> usersTeams, string teamName, string username) {
 	for (auto userTeam : usersTeams) {
 		if (userTeam.teamName == teamName
@@ -114,3 +140,4 @@ string UserTeam::acceptRequest(vector<UserTeam> &usersTeams, string teamName, st
 		return RES_ACCEPT_NO_REQUEST;
 	}
 }
+
