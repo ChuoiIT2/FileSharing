@@ -6,7 +6,9 @@
 
 #pragma once
 
+#ifndef DB_BUFF
 #define DB_BUFF 200000
+#endif
 
 using namespace std;
 

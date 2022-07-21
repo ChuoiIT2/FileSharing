@@ -149,6 +149,7 @@
     <ClInclude Include="..\Server\Team.h" />
     <ClInclude Include="..\Server\User.h" />
     <ClInclude Include="..\Server\UserTeam.h" />
+    <ClInclude Include="..\Server\protocols.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
