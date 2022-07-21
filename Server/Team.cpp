@@ -6,7 +6,7 @@ Team::Team(string _name) {
 	name = _name;
 }
 
-Team::~Team() { 
+Team::~Team() {
 	name = "";
 }
 
@@ -22,7 +22,7 @@ string Team::toString() {
 	return name;
 }
 
-int Team::readTeamDb(vector<Team> &teams) {
+int Team::readDb(vector<Team> &teams) {
 	FILE* fTeam;
 	errno_t error = fopen_s(&fTeam, DB_PATH.c_str(), "rt");
 	if (error != 0) {
@@ -49,7 +49,7 @@ string Team::addTeam(vector<Team> &teams, Team team) {
 	errno_t error = fopen_s(&fTeam, DB_PATH.c_str(), "at");
 	if (error != 0) {
 		return RES_UNDEFINED_ERROR;
-	} 
+	}
 
 	string teamName = team.getName();
 	if (isExisted(teams, teamName)) {
@@ -57,7 +57,7 @@ string Team::addTeam(vector<Team> &teams, Team team) {
 	} else {
 		teams.push_back(team);
 		string endLine = team.name;
-		
+
 		fwrite(endLine.c_str(), sizeof(char), endLine.length(), fTeam);
 		fclose(fTeam);
 

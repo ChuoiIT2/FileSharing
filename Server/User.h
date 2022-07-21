@@ -25,7 +25,7 @@ public:
 	string getPassword();
 	string toString();
 	static string DB_PATH;
-	static int readUserDb(vector<User> &users);
+	static int readDb(vector<User> &users);
 	static string registerAccount(vector<User> &users, User user);
 	static string checkLogin(vector<User> &users, User user);
 };
