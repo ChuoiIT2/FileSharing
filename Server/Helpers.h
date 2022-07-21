@@ -9,5 +9,6 @@ public:
 	Helpers();
 	~Helpers();
 	static vector<string> splitString(string str, char seperator);
+	static int toInt(char* str);
 };
 

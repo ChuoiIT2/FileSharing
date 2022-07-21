@@ -5,6 +5,7 @@
 #include "User.h"
 #include "Team.h"
 #include "UserTeam.h"
+#include "Helpers.h"
 
 using namespace std;
 
@@ -26,9 +27,8 @@ int handleArguments(int argc, char** argv) {
 	if (argc != 6) {
 		return 1;
 	}
-	char* stopString;
 	SERVER_HOST = string(argv[1]);
-	SERVER_PORT = strtoul(argv[2], &stopString, 10);
+	SERVER_PORT = Helpers::toInt(argv[2]);
 	User::DB_PATH = string(argv[3]);
 	Team::DB_PATH = string(argv[4]);
 	UserTeam::DB_PATH = string(argv[5]);

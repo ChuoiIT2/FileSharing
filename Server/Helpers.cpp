@@ -22,3 +22,8 @@ vector<string> Helpers::splitString(string str, char seperator) {
 
 	return result;
 }
+
+int Helpers::toInt(char* str) {
+	char* stopString;
+	return strtol(str, &stopString, 10);
+}

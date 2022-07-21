@@ -1,5 +1,4 @@
 #include "UserTeam.h"
-#include "protocols.h"
 
 UserTeam::UserTeam(string _username, string _teamName, Role _role = MEMBER, UserTeamStatus _status = PENDING) {
 	username = _username;
@@ -32,6 +31,32 @@ int UserTeam::writeToDb(vector<UserTeam> usersTeams) {
 	return 0;
 }
 
+int UserTeam::readUserTeamDb(vector<UserTeam> &usersTeams) {
+	FILE* fUserTeam;
+	errno_t error = fopen_s(&fUserTeam, DB_PATH.c_str(), "rt");
+	if (error) {
+		cout << "Error: Cannot open USER_TEAM_DB" << "\n";
+		return 1;
+	}
+
+	char buff[DB_BUFF];
+	vector<UserTeam> result;
+	while (fgets(buff, DB_BUFF, fUserTeam) != NULL) {
+		buff[strlen(buff) - 1] = 0;
+		vector<string> lines = Helpers::splitString(string(buff), '\n');
+		if (lines.size() != 4) {
+			return 1;
+		}
+		Role role = stoi(lines[2]) == Role::OWNER ? Role::OWNER : Role::MEMBER;
+		UserTeamStatus status = stoi(lines[3]) == UserTeamStatus::IN ? UserTeamStatus::IN : UserTeamStatus::PENDING;
+		result.push_back(UserTeam(lines[0], lines[1], role, status));
+	}
+	usersTeams = result;
+
+	fclose(fUserTeam);
+	return 0;
+}
+
 bool UserTeam::isAdmin(vector<UserTeam> usersTeams, string teamName, string username) {
 	for (auto userTeam : usersTeams) {
 		if (userTeam.teamName == teamName
@@ -44,9 +69,9 @@ bool UserTeam::isAdmin(vector<UserTeam> usersTeams, string teamName, string user
 	return false;
 }
 
-string UserTeam::requestJoinTeam(vector<UserTeam> &usersTeams, string teamName, string username) {
+string UserTeam::requestJoinTeam(vector<UserTeam> &usersTeams, vector<Team> teams, string teamName, string username) {
 	// check if team exist, leave util Team is completed
-	if (true) {
+	if (Team::isExisted(teams, teamName)) {
 		// Check the request existant
 		for (auto userTeam : usersTeams) {
 			if (userTeam.username == username) {
@@ -82,9 +107,9 @@ string UserTeam::requestJoinTeam(vector<UserTeam> &usersTeams, string teamName, 
 	}
 }
 
-string UserTeam::acceptRequest(vector<UserTeam> &usersTeams, string teamName, string ownerUsername, string username) {
+string UserTeam::acceptRequest(vector<UserTeam> &usersTeams, vector<Team> teams, string teamName, string ownerUsername, string username) {
 	// check if team exist, leave util Team is completed
-	if (true) {
+	if (Team::isExisted(teams, teamName)) {
 		// Check isAdmin
 		if (!isAdmin(usersTeams, teamName, username)) {
 			return RES_FORBIDDEN_ERROR;
@@ -113,4 +138,22 @@ string UserTeam::acceptRequest(vector<UserTeam> &usersTeams, string teamName, st
 	} else {
 		return RES_ACCEPT_NO_REQUEST;
 	}
+}
+
+int UserTeam::createTeam(vector<UserTeam> &usersTeams, string teamName, string username) {
+	FILE* fUserTeam;
+	errno_t error = fopen_s(&fUserTeam, DB_PATH.c_str(), "at");
+	if (error != 0) {
+		cout << "Cannot open USER_TEAM_DB";
+		return 1;
+	}
+	string data = username + " "
+		+ teamName + " "
+		+ to_string(Role::OWNER) + " "
+		+ to_string(UserTeamStatus::IN) + "\n";
+	fwrite(data.c_str(), sizeof(char), data.length(), fUserTeam);
+	usersTeams.push_back(UserTeam(username, teamName, Role::MEMBER, UserTeamStatus::IN));
+
+	fclose(fUserTeam);
+	return 0;
 }
