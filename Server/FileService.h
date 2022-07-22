@@ -51,15 +51,20 @@ public:
 
 		string rootDirPath = ROOT_DATA_PATH + teamName + "/" + dirPath;
 
-		if (fs::exists(rootDirPath)) {
+		//Check if directory path has exist
+		if (!fs::exists(rootDirPath)) {
 			return RES_MKDIR_INVALID_PATH;
 		}
 
-		string pathToCreate = dirPath + "/" + dirName;
+		string pathToCreate = rootDirPath + "/" + dirName;
 		if (fs::exists(pathToCreate)) {
 			return RES_MKDIR_DIR_EXIST;
 		}
-		return RES_MKDIR_SUCCESS;
+		if(fs::create_directory(pathToCreate)) {
+			return RES_MKDIR_SUCCESS;
+		} else {
+			return RES_UNDEFINED_ERROR;
+		}
 	}
 
 	static string removeDir(vector<UserTeam> usersTeams, string teamName, string username, string dirPath) {
