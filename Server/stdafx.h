@@ -6,11 +6,8 @@
 #pragma once
 
 #include "targetver.h"
-
-#include <stdio.h>
+#include <iostream>
 #include <tchar.h>
-#include "conio.h"
-#include "string.h"
 #include "ws2tcpip.h"
 #include "winsock2.h"
 #include "process.h"
@@ -21,6 +18,9 @@
 #define MAX_CLIENT 640
 #define MAX_ACCOUNT 2050
 #define MAX_THREAD 10
+
+using namespace std;
+#pragma comment(lib, "Ws2_32.lib")
 
 typedef struct Client {
 	SOCKET socket;
@@ -43,7 +43,7 @@ typedef struct ThreadInfo {
 
 // TODO: reference additional headers your program requires here
 void InittiateWinsock();
-sockaddr_in ConstructAddress(char* IPAdd, short port);
+sockaddr_in ConstructAddress(string IPAdd, int port);
 int Receive(SOCKET s, char *buff, int size, int flags);
 int Send(SOCKET s, char *buff, int size, int flags);
 void cleanUp(int iThread, int index);

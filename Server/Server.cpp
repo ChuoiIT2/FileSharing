@@ -83,7 +83,6 @@ int main(int argc, char** argv) {
 		cout << "Invalid arguments, please try again\n";
 		return 0;
 	}
-	cout << "Server is running at " << SERVER_HOST << ":" << SERVER_PORT << "\n";
 
 	testClasses();
 
@@ -100,22 +99,22 @@ int main(int argc, char** argv) {
 	listenSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 	sockaddr_in serverAddr;
-	serverAddr = ConstructAddress(SERVER_ADDR, SERVER_PORT);
+	serverAddr = ConstructAddress(SERVER_HOST, SERVER_PORT);
 
 	if (bind(listenSock, (sockaddr *)&serverAddr, sizeof(serverAddr)))
 	{
-		printf("Error %d: Cannot associate a local address with server socket.\n", WSAGetLastError());
+		cout << "Cannot associate a local address with server socket. Error: " << WSAGetLastError() << endl;
 		WSACleanup();
 		return 0;
 	}
 
 	if (listen(listenSock, 10)) {
-		printf("Error %d: Cannot place server socket in state LISTEN", WSAGetLastError());
+		cout << "Cannot associate a local address with server socket. Error: " << WSAGetLastError() << endl;
 		WSACleanup();
 		return 0;
 	}
 
-	printf("Server started at [%s:%d]\n", SERVER_ADDR, SERVER_PORT);
+	cout << "Server is running at " << SERVER_HOST << ":" << SERVER_PORT << "\n";
 
 	SOCKET connSock;
 	sockaddr_in clientAddr;
@@ -126,20 +125,22 @@ int main(int argc, char** argv) {
 	while (1) {
 		connSock = accept(listenSock, (sockaddr *)& clientAddr, &clientAddrLen);
 		if (connSock == SOCKET_ERROR)
-			printf("Error %d: Cannot permit incoming connection.\n", WSAGetLastError());
+			cout << "Error " << WSAGetLastError() << ": Cannot permit incoming connection." << endl;
 		else {
 			inet_ntop(AF_INET, &clientAddr.sin_addr, clientIP, sizeof(clientIP));
 			clientPort = ntohs(clientAddr.sin_port);
-			printf("Accept incoming connection from %s:%d\n", clientIP, clientPort);
+			cout << "Accept incoming connection from " << clientIP << " : " << clientPort << endl;
+			int iterThread = 0, iterClient = 0;
+			//@iterThread: index of thread; @iterClient: index of client on thread
 
-			int m = 0, n = 0;
 			bool isAllowNewSock = false;
+			//@isAllowNewSock: check new connection is allow to connected
 
-			for (m = 0; m < MAX_THREAD; m++) {
-				for (n = 0; n < WSA_MAXIMUM_WAIT_EVENTS; n++) {
+			for (iterThread = 0; iterThread < MAX_THREAD; iterThread++) {
+				for (iterClient = 0; iterClient < WSA_MAXIMUM_WAIT_EVENTS; iterClient++) {
 					//critical section
 					EnterCriticalSection(&cs);
-					if (Clients[m][n].socket == 0) {
+					if (Clients[iterThread][iterClient].socket == 0) {
 						LeaveCriticalSection(&cs);
 
 						Client cTemp;
@@ -149,14 +150,14 @@ int main(int argc, char** argv) {
 
 						//critical section
 						EnterCriticalSection(&cs);
-						Clients[m][n] = cTemp;
+						Clients[iterThread][iterClient] = cTemp;
 						LeaveCriticalSection(&cs);
 
 						//critical section
 						EnterCriticalSection(&cs);
-						threads[m].events[n] = WSACreateEvent();
-						WSAEventSelect(Clients[m][n].socket, threads[m].events[n], FD_READ | FD_CLOSE);
-						threads[m].nEvents++;
+						threads[iterThread].events[iterClient] = WSACreateEvent();
+						WSAEventSelect(Clients[iterThread][iterClient].socket, threads[iterThread].events[iterClient], FD_READ | FD_CLOSE);
+						threads[iterThread].nEvents++;
 						LeaveCriticalSection(&cs);
 
 						isAllowNewSock = true;
@@ -165,9 +166,9 @@ int main(int argc, char** argv) {
 				}
 				EnterCriticalSection(&cs);
 
-				if (m > nThread) {
-					nThread = m;
-					printf("Create new thread \n");
+				if (iterThread > nThread) {
+					nThread = iterThread;
+					cout << "Create new thread\n";
 					_beginthreadex(0, 0, worker, (void *)nThread, 0, 0);
 				}
 				LeaveCriticalSection(&cs);
@@ -175,8 +176,8 @@ int main(int argc, char** argv) {
 
 			}
 
-			if (m == MAX_THREAD) {
-				printf("Error: Too many clients\n");
+			if (iterThread == MAX_THREAD) {
+				cout << "Too many clients.\n";
 				closesocket(connSock);
 			}
 
@@ -194,46 +195,46 @@ void InittiateWinsock() {
 	WORD vVersion = MAKEWORD(2, 2);
 
 	if (WSAStartup(vVersion, &wsaData)) {
-		printf("Version is not supported\n");
+		cout << "Version is not supported\n";
 		exit(0);
 	}
 }
 
-sockaddr_in ConstructAddress(char* IPAdd, short port) {
+sockaddr_in ConstructAddress(string IPAdd, int port) {
+	const char *IPAddress = IPAdd.c_str();
 	sockaddr_in serverAddr;
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_port = htons(port);
-	inet_pton(AF_INET, IPAdd, &serverAddr.sin_addr);
+	inet_pton(AF_INET, IPAddress, &serverAddr.sin_addr);
 
 	return serverAddr;
 }
 
 int Receive(SOCKET s, char *buff, int size, int flags) {
-	int n;
-
-	n = recv(s, buff, size, flags);
-	if (n == SOCKET_ERROR)
-		printf("Error %d: Cannot receive data.\n", WSAGetLastError());
-	else if (n == 0)
-		printf("Client disconnects.\n");
-	return n;
+	int ret = recv(s, buff, size, flags);
+	if (ret == SOCKET_ERROR)
+		cout << "Error " << WSAGetLastError() << ": Cannot receive data.\n";
+	else if (ret == 0)
+		cout << "Client disconnects.\n";
+	return ret;
 }
 
 /* The send() wrapper function*/
 int Send(SOCKET s, char *buff, int size, int flags) {
-	int n;
-
-	n = send(s, buff, size, flags);
-	if (n == SOCKET_ERROR)
-		printf("Error %d: Cannot send data.\n", WSAGetLastError());
-
-	return n;
+	int ret = send(s, buff, size, flags);
+	if (ret == SOCKET_ERROR)
+		cout << "Error " << WSAGetLastError() << ": Cannot send data.\n";
+	return ret;
 }
 void cleanUp(int iThread, int index) {
+	//close socket and close event
 	closesocket(Clients[iThread][index].socket);
 	Clients[iThread][index].socket = 0;
 	WSACloseEvent(threads[iThread].events[index]);
 	int i;
+	
+	//move clients from closed socket to the left
+	//purpose of use: make end of array empty
 	for (i = index; i < WSA_MAXIMUM_WAIT_EVENTS; i++) {
 		Clients[iThread][i].socket = Clients[iThread][i + 1].socket;
 		threads[iThread].events[i] = threads[iThread].events[i + 1];
@@ -259,7 +260,7 @@ unsigned __stdcall worker(void *param) {
 		index = WSAWaitForMultipleEvents(threads[iThread].nEvents, threads[iThread].events, FALSE, 30, FALSE);
 		if (index == WSA_WAIT_TIMEOUT) continue;
 		if (index == WSA_WAIT_FAILED) {
-			printf("Error %d: WSAWaitForMultipleEvents() failed\n", WSAGetLastError());
+			cout << "WSAWaitForMultipleEvents() failed\n";
 			break;
 		}
 
@@ -268,7 +269,7 @@ unsigned __stdcall worker(void *param) {
 
 		if (sockEvent.lNetworkEvents & FD_READ) {
 			if (sockEvent.iErrorCode[FD_READ_BIT] != 0) {
-				printf("FD_READ failed with error %d\n", sockEvent.iErrorCode[FD_READ_BIT]);
+				cout << "FD_READ failed with error " << sockEvent.iErrorCode[FD_READ_BIT] << endl;
 				break;
 			}
 
@@ -293,7 +294,7 @@ unsigned __stdcall worker(void *param) {
 		if (sockEvent.lNetworkEvents & FD_CLOSE) {
 
 			if (sockEvent.iErrorCode[FD_CLOSE_BIT] != 0) {
-				printf("FD_CLOSE 2 failed with error %d\n", sockEvent.iErrorCode[FD_CLOSE_BIT]);
+				cout << "FD_READ failed with error " << sockEvent.iErrorCode[FD_READ_BIT] << endl;
 				//break;
 			}
 
