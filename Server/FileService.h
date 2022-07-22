@@ -60,7 +60,7 @@ public:
 		if (fs::exists(pathToCreate)) {
 			return RES_MKDIR_DIR_EXIST;
 		}
-		if(fs::create_directory(pathToCreate)) {
+		if (fs::create_directory(pathToCreate)) {
 			return RES_MKDIR_SUCCESS;
 		} else {
 			return RES_UNDEFINED_ERROR;
