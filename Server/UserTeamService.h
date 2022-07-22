@@ -187,4 +187,13 @@ public:
 		return 0;
 	}
 
+	static string getTeamsOfUser(vector<UserTeam> usersTeams, string username, vector<string> &result) {
+		result.clear();
+		for (auto userTeam : usersTeams) {
+			if (userTeam.getUsername() == username && userTeam.getStatus() == UserTeamStatus::IN) {
+				result.push_back(userTeam.getTeamName());
+			}
+		}
+		return RES_TEAMS_SUCCESS;
+	}
 };
