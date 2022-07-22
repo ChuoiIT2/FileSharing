@@ -76,6 +76,9 @@ void testClasses() {
 	for (auto file : files) {
 		cout << file << "\n";
 	}
+
+	cout << "\nTEST RMDIR:\n";
+	cout << FileService::removeDir(usersTeams, "team1", "admin", "") << endl;
 }
 
 int main(int argc, char** argv) {
