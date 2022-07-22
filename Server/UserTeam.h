@@ -17,7 +17,7 @@ enum Role {
 // In: user is already in team
 enum UserTeamStatus {
 	PENDING = 0,
-	IN = 1
+	JOINED = 1
 };
 
 class UserTeam {
