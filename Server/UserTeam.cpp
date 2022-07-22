@@ -40,5 +40,5 @@ string UserTeam::toString() {
 	return username + " "
 		+ teamName + " "
 		+ (role == Role::OWNER ? "OWNER " : "MEMBER ")
-		+ (status == UserTeamStatus::IN ? "IN" : "PENDING");
+		+ (status == UserTeamStatus::JOINED ? "JOINED" : "PENDING");
 }
