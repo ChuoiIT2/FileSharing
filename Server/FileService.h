@@ -7,6 +7,7 @@
 #include "UserTeam.h"
 #include "UserTeamService.h"
 #include "Helpers.h"
+#include <cstdio>
 
 using namespace std;
 namespace fs = std::experimental::filesystem;
@@ -26,6 +27,21 @@ public:
 		}
 
 		return RES_VIEW_SUCCESS;
+	}
+
+	static string removeFile(vector<UserTeam> usersTeams, string teamName, string username, string data) {
+		if (!UserTeamService::isAdmin(usersTeams, teamName, username)) {
+			return RES_FORBIDDEN_ERROR;
+		}
+
+		int result;
+
+		const char* fileName = data.c_str();
+		result = remove(fileName);
+		if (!result)
+			return RES_RM_SUCCESS;
+		else
+			return RES_RM_INVALID_REMOTE_PATH;
 	}
 
 	static string removeDir(vector<UserTeam> usersTeams, string teamName, string username, string dirPath) {
