@@ -44,6 +44,29 @@ public:
 			return RES_RM_INVALID_REMOTE_PATH;
 	}
 
+	static string createDir(vector<UserTeam> userTeams, string teamName, string username, string dirPath, string dirName) {
+		if (!UserTeamService::isInTeam(userTeams, teamName, username)) {
+			return RES_FORBIDDEN_ERROR;
+		}
+
+		string rootDirPath = ROOT_DATA_PATH + teamName + "/" + dirPath;
+
+		//Check if directory path has exist
+		if (!fs::exists(rootDirPath)) {
+			return RES_MKDIR_INVALID_PATH;
+		}
+
+		string pathToCreate = rootDirPath + "/" + dirName;
+		if (fs::exists(pathToCreate)) {
+			return RES_MKDIR_DIR_EXIST;
+		}
+		if(fs::create_directory(pathToCreate)) {
+			return RES_MKDIR_SUCCESS;
+		} else {
+			return RES_UNDEFINED_ERROR;
+		}
+	}
+
 	static string removeDir(vector<UserTeam> usersTeams, string teamName, string username, string dirPath) {
 		if (!UserTeamService::isAdmin(usersTeams, teamName, username)) {
 			return RES_FORBIDDEN_ERROR;
