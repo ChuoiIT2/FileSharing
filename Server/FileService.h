@@ -9,7 +9,7 @@
 #include "Helpers.h"
 
 using namespace std;
-using std::experimental::filesystem::recursive_directory_iterator;
+namespace fs = std::experimental::filesystem;
 
 class FileService {
 public:
@@ -21,10 +21,22 @@ public:
 
 		string result;
 
-		for (const auto & file : recursive_directory_iterator(ROOT_DATA_PATH + teamName)) {
+		for (const auto & file : fs::recursive_directory_iterator(ROOT_DATA_PATH + teamName)) {
 			data.push_back(file.path().string());
 		}
 
 		return RES_VIEW_SUCCESS;
+	}
+
+	static string removeDir(vector<UserTeam> usersTeams, string teamName, string username, string dirPath) {
+		if (!UserTeamService::isAdmin(usersTeams, teamName, username)) {
+			return RES_FORBIDDEN_ERROR;
+		}
+		string pathToRemove = ROOT_DATA_PATH + teamName + "/" + dirPath;
+		auto numRemoved = fs::remove_all(fs::path(pathToRemove));
+		if (numRemoved == 0) {
+			return RES_RMDIR_INVALID_PATH;
+		}
+		return RES_RMDIR_SUCCESS;
 	}
 };
