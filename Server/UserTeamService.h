@@ -53,7 +53,7 @@ public:
 				return 1;
 			}
 			Role role = stoi(lines[2]) == Role::OWNER ? Role::OWNER : Role::MEMBER;
-			UserTeamStatus status = stoi(lines[3]) == UserTeamStatus::IN ? UserTeamStatus::IN : UserTeamStatus::PENDING;
+			UserTeamStatus status = stoi(lines[3]) == UserTeamStatus::JOINED ? UserTeamStatus::JOINED : UserTeamStatus::PENDING;
 			result.push_back(UserTeam(lines[0], lines[1], role, status));
 		}
 		usersTeams = result;
@@ -65,7 +65,7 @@ public:
 		for (auto userTeam : usersTeams) {
 			if (userTeam.getTeamName() == teamName
 				&& userTeam.getUsername() == username
-				&& userTeam.getStatus() == UserTeamStatus::IN) {
+				&& userTeam.getStatus() == UserTeamStatus::JOINED) {
 				return true;
 			}
 		}
@@ -77,7 +77,7 @@ public:
 		for (auto userTeam : usersTeams) {
 			if (userTeam.getTeamName() == teamName
 				&& userTeam.getUsername() == username
-				&& userTeam.getStatus() == UserTeamStatus::IN
+				&& userTeam.getStatus() == UserTeamStatus::JOINED
 				&& userTeam.getRole() == Role::OWNER) {
 				return true;
 			}
@@ -104,7 +104,7 @@ public:
 			// Check the request existant
 			for (auto userTeam : usersTeams) {
 				if (userTeam.getUsername() == username) {
-					if (userTeam.getStatus() == UserTeamStatus::IN) {
+					if (userTeam.getStatus() == UserTeamStatus::JOINED) {
 						// Case already active in team
 						return RES_JOIN_ALREADY_IN;
 					} else {
@@ -158,7 +158,7 @@ public:
 			if (!hasRequest) {
 				return RES_ACCEPT_NO_REQUEST;
 			} else {
-				usersTeams[indexReq].setStatus(UserTeamStatus::IN);
+				usersTeams[indexReq].setStatus(UserTeamStatus::JOINED);
 				if (writeToDb(usersTeams) == 1) {
 					return RES_UNDEFINED_ERROR;
 				}
@@ -179,9 +179,9 @@ public:
 		string data = username + " "
 			+ teamName + " "
 			+ to_string(Role::OWNER) + " "
-			+ to_string(UserTeamStatus::IN) + "\n";
+			+ to_string(UserTeamStatus::JOINED) + "\n";
 		fwrite(data.c_str(), sizeof(char), data.length(), fUserTeam);
-		usersTeams.push_back(UserTeam(username, teamName, Role::OWNER, UserTeamStatus::IN));
+		usersTeams.push_back(UserTeam(username, teamName, Role::OWNER, UserTeamStatus::JOINED));
 
 		fclose(fUserTeam);
 		return 0;
@@ -190,7 +190,7 @@ public:
 	static string getTeamsOfUser(vector<UserTeam> usersTeams, string username, vector<string> &result) {
 		result.clear();
 		for (auto userTeam : usersTeams) {
-			if (userTeam.getUsername() == username && userTeam.getStatus() == UserTeamStatus::IN) {
+			if (userTeam.getUsername() == username && userTeam.getStatus() == UserTeamStatus::JOINED) {
 				result.push_back(userTeam.getTeamName());
 			}
 		}
