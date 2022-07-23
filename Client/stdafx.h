@@ -9,7 +9,22 @@
 
 #include <stdio.h>
 #include <tchar.h>
+#include <WinSock2.h>
+#include <cstdlib>
+#include <iostream>
+#include <string>
+#include <WS2tcpip.h>
+#include <conio.h>
+using namespace std;
+#pragma comment(lib, "Ws2_32.lib")
 
-
-
+#define BUFF_SIZE 100000
+#define TRANSFER_CODE 0
+#define ERROR_CODE 1
 // TODO: reference additional headers your program requires here
+int handleArguments(int argc, char**argv);
+void mainScreen();
+void authScreen();
+void homeScreen();
+void loginScreen();
+void registerScreen();
