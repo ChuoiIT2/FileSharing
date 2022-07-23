@@ -30,7 +30,7 @@ struct ThreadInfo {
 
 void constructWinsock();
 sockaddr_in constructAddr(string IPAdd, int port);
-string splitDataStreaming(char* receiveData);
+vector<string> splitDataStreaming(char* receiveData);
 int sReceive(SOCKET s, char* buff, int size, int flags);
 int sSend(SOCKET s, char* buff, int size, int flags);
 void cleanUp(int iThread, int index);
