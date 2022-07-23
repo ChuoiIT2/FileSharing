@@ -80,7 +80,8 @@
 #define MSG_ACCEPT_SUCCESS "Accept request successfully"
 #define MSG_ACCEPT_NO_REQUEST "This request does not exist"
 
-#define MSG_UPLOAD_SUCCESS "Request upload file successfully"
+#define MSG_REQ_UPLOAD_SUCCESS "Request upload file successfully"
+#define MSG_UPLOAD_SUCCESS "Upload file successfully"
 #define MSG_UPLOAD_INVALID_REMOTE_PATH "Invalid remote file path"
 #define MSG_UPLOAD_FILE_EXIST "This file path has already existed"
 #define MSG_UPLOADING "File is uploading"
@@ -95,6 +96,7 @@
 #define MSG_RMDIR_SUCCESS "Remove directory successfully"
 #define MSG_RMDIR_INVALID_PATH "Invalid remote directory path"
 
+#define MSG_REQ_DOWNLOAD_SUCCESS "Request download file successfully"
 #define MSG_DOWNLOAD_SUCCESS "Download file successfully"
 #define MSG_DOWNLOAD_INVALID_PATH "Invalid remote file path"
 #define MSG_DOWNLOADING "File is downloading"
