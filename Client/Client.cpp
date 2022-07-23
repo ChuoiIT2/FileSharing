@@ -11,71 +11,158 @@ string UserService::DB_PATH, TeamService::DB_PATH, UserTeamService::DB_PATH;
 string SERVER_HOST;
 int SERVER_PORT;
 int choice = -1;
+FILE* file;
 
-struct Client {
-	SOCKET socket;
-	bool isLoggedIn = false;
-	string username;
-	string password;
-	string fileName = ""; //contain file's name need to send
-	string responseFileName = ""; //file's name response
-	FILE* ptrInput = NULL; //file pointer to file need to send
-	FILE* ptrOutput = NULL; //file pointer to result file receive from server
-};
-
+// Global main Client variable
 Client client;
 
-int main(int argc, char**argv)
-{
-	if (handleArguments(argc, argv) != 0) {
-		cout << "Invalid arguments, please try again\n";
-		return 0;
-	}
-
+int constructWinsock() {
 	WSADATA wsaDATA;
 	WORD wVersion = MAKEWORD(2, 2);
 	if (WSAStartup(wVersion, &wsaDATA)) {
-		printf("Winsock 2.2 is not supported\n");
-		return 0;
+		cout << "Error: Winsock 2.2 is not supported\n";
+		return 1;
 	}
+	return 0;
+}
 
-	//Construct socket
+int constructSocket() {
 	client.socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (client.socket == INVALID_SOCKET) {
-		printf("Error %d: Cannot create server socket.\n", WSAGetLastError());
-		return 0;
+		cout << "Error " << WSAGetLastError() << ": Cannot create socket\n";
+		return 1;
 	}
 
+	// Time out is 10s
 	int tv = 10000;
 	setsockopt(client.socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)(&tv), sizeof(int));
 
-	//bind addrees to socket
+	// Bind addrees to socket
 	sockaddr_in serverAddr;
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_port = htons(SERVER_PORT);
 	inet_pton(AF_INET, SERVER_HOST.c_str(), &serverAddr.sin_addr);
 
-	//connect to server
-	//if (connect(client.socket, (sockaddr*)&serverAddr, sizeof(serverAddr))) {
-	//	printf("Error %d: Cannot connect to server.\n", WSAGetLastError());
-	//	return 0;
-	//}
+	return 0;
+}
 
-	cout << "Connected to server " << SERVER_HOST << ":" << SERVER_PORT << endl;
-    
-	while (1) {
+int connectToServer() {
+	// Specify server address
+	sockaddr_in serverAddr;
+	serverAddr.sin_family = AF_INET;
+	serverAddr.sin_port = htons(SERVER_PORT);
+	inet_pton(AF_INET, SERVER_HOST.c_str(), &serverAddr.sin_addr);
+
+	// Request to connect server
+	if (connect(client.socket, (sockaddr *)&serverAddr, sizeof(serverAddr))) {
+		Helpers::printWSAError(WSAGetLastError(), "Cannot connect to server");
+		closesocket(client.socket);
+		WSACleanup();
+		return 1;
+	}
+	cout << "Connected to server [" << SERVER_HOST << ":" << SERVER_PORT << "]\n";
+	return 0;
+}
+
+int main(int argc, char**argv) {
+	if (handleArguments(argc, argv) != 0) {
+		return 0;
+	}
+
+	if (constructWinsock() != 0) {
+		return 0;
+	}
+
+	if (constructSocket() != 0) {
+		return 0;
+	}
+
+	if (connectToServer() != 0) {
+		return 0;
+	}
+
+	while (true) {
 		mainScreen();
 	}
+
 	return 0;
 }
 
 int handleArguments(int argc, char**argv) {
 	if (argc != 3) {
+		cout << "Invalid list arguments\n";
 		return 1;
 	}
 
 	SERVER_HOST = string(argv[1]);
 	SERVER_PORT = Helpers::toInt(argv[2]);
+	return 0;
+}
+
+int sReceive(char* buff, int size = BUFF_SIZE, int flags = 0) {
+	int ret = recv(client.socket, buff, size, flags);
+	if (ret == SOCKET_ERROR) {
+		if (WSAGetLastError() == WSAETIMEDOUT) {
+			cout << "Error: Time out for receiving data\n";
+		} else {
+			Helpers::printWSAError(WSAGetLastError(), "Cannot receive data");
+		}
+	}
+	return ret;
+}
+
+int sSend(char* buff, int size, int flags = 0) {
+	int ret = send(client.socket, buff, size, flags);
+	if (ret == SOCKET_ERROR) {
+		Helpers::printWSAError(WSAGetLastError(), "Cannot send data");
+	}
+	return ret;
+}
+
+int handleUpload(string filePath) {
+	errno_t error = fopen_s(&file, filePath.c_str(), "rb");
+	if (error) {
+		cout << "Error: Cannot open file: " << filePath << endl;
+		return 1;
+	}
+
+	char sBuff[BUFF_SIZE] = "";
+	int REQ_UPLOADING_LEN = strlen(REQ_UPLOADING);
+	memcpy_s(sBuff + 4, REQ_UPLOADING_LEN, REQ_UPLOADING, REQ_UPLOADING_LEN);
+	memcpy_s(sBuff + 5, 1, " ", 1); // Add space after header
+
+	int sentBytes = 0, length = 0, readBytes = 0;
+
+	cout << "-> Uploading file to server...";
+	do {
+		// 5 is length of "length" + length of " "(space)
+		readBytes = fread(sBuff + REQ_UPLOADING_LEN + 5, 1, BUFF_SIZE - (REQ_UPLOADING_LEN + 5), file);
+		if (readBytes == 0) {
+			break;
+		}
+
+		const char* sLength = Helpers::convertLength(readBytes);
+		memcpy_s(sBuff, 4, sLength, 4);
+
+		sentBytes = sSend(sBuff, REQ_UPLOADING_LEN + 5 + readBytes);
+		if (sentBytes == SOCKET_ERROR) {
+			return 1;
+		}
+		Sleep(50);
+		cout << ".";
+	} while (readBytes > 0);
+
+	// Complete transfer file
+	const char* sLength = Helpers::convertLength(0);
+	memcpy_s(sBuff, 4, sLength, 4);
+	sentBytes = sSend(sBuff, REQ_UPLOADING_LEN + 5);
+	if (sentBytes == SOCKET_ERROR) {
+		return 1;
+	}
+
+	cout << "Uploaded file";
+	fclose(file);
+
 	return 0;
 }
 
@@ -103,14 +190,13 @@ void authScreen() {
 		cin >> option;
 	} while (option == 1 && option == 2);
 
-	switch (option)
-	{
-	case 1:
-		loginScreen();
-		break;
-	case 2:
-		registerScreen();
-		break;
+	switch (option) {
+		case 1:
+			loginScreen();
+			break;
+		case 2:
+			registerScreen();
+			break;
 	}
 
 }
@@ -158,8 +244,7 @@ void registerScreen() {
 			cout << "\nYour password not match, please register again!\n";
 			_getch();
 			continue;
-		}
-		else {
+		} else {
 			client.isLoggedIn = true;
 			valid = true;
 		}
@@ -181,41 +266,40 @@ void handleChoiceHomeScreen() {
 		valid = true;
 	}
 
-	switch (select)
-	{
-	case 1:
-		handleCreateTeam();
-		break;
-	case 2:
-		handleJoinTeam();
-		break;
-	case 3:
-		handleUploadFile();
-		break;
-	case 4:
-		handleDownloadFile();
-		break;
-	case 5:
-		handleDeleteFile();
-		break;
-	case 6:
-		handleCreateFolder();
-		break;
-	case 7:
-		handleDeleteFolder();
-		break;
-	case 8:
-		handleGetTeams();
-		break;
-	case 9:
-		handleGetFileStructure();
-		break;
-	case 10:
-		handleProcessTeamReq();
-		break;
-	case 11:
-		handleLogout();
-		break;
+	switch (select) {
+		case 1:
+			handleCreateTeam();
+			break;
+		case 2:
+			handleJoinTeam();
+			break;
+		case 3:
+			handleUploadFile();
+			break;
+		case 4:
+			handleDownloadFile();
+			break;
+		case 5:
+			handleDeleteFile();
+			break;
+		case 6:
+			handleCreateFolder();
+			break;
+		case 7:
+			handleDeleteFolder();
+			break;
+		case 8:
+			handleGetTeams();
+			break;
+		case 9:
+			handleGetFileStructure();
+			break;
+		case 10:
+			handleProcessTeamReq();
+			break;
+		case 11:
+			handleLogout();
+			break;
 	}
 }
 

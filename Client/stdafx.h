@@ -23,7 +23,17 @@ using namespace std;
 #define BUFF_SIZE 100000
 #define TRANSFER_CODE 0
 #define ERROR_CODE 1
-// TODO: reference additional headers your program requires here
+
+struct Client {
+	SOCKET socket;
+	bool isLoggedIn = false;
+	string username;
+	string password;
+	string fileName = ""; //contain file's name need to send
+	string responseFileName = ""; //file's name response
+	FILE* ptrInput = NULL; //file pointer to file need to send
+	FILE* ptrOutput = NULL; //file pointer to result file receive from server
+};
 
 int handleArguments(int argc, char**argv);
 
