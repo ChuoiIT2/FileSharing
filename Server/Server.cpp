@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
 	for (int i = 0; i < MAX_THREAD; i++) {
 		for (int j = 0; j < WSA_MAXIMUM_WAIT_EVENTS; j++) {
 			clients[i][j].socket = 0;
-			strcpy_s(clients[i][j].username, "");
+			clients[i][j].username = "";
 		}
 		threads[i].nEvents = 0;
 	}
@@ -272,7 +272,7 @@ unsigned __stdcall worker(void* param) {
 				break;
 			}
 
-			ret = Receive(clients[iThread][index].socket, recvBuff, BUFF_SIZE, 0);
+			ret = sReceive(clients[iThread][index].socket, recvBuff, BUFF_SIZE, 0);
 			printf("Received %s\n", recvBuff);
 			if (ret <= 0) {
 				cleanUp(iThread, index);
@@ -282,7 +282,7 @@ unsigned __stdcall worker(void* param) {
 
 				recvBuff[ret] = 0;
 				memcpy(sendBuff, recvBuff, ret);
-				Send(clients[iThread][index].socket, sendBuff, strlen(sendBuff), 0);
+				sSend(clients[iThread][index].socket, sendBuff, strlen(sendBuff), 0);
 				WSAResetEvent(threads[iThread].events[index]);
 			}
 
