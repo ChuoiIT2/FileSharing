@@ -60,7 +60,7 @@ public:
 		if (fs::exists(pathToCreate)) {
 			return RES_MKDIR_DIR_EXIST;
 		}
-		if(fs::create_directory(pathToCreate)) {
+		if (fs::create_directory(pathToCreate)) {
 			return RES_MKDIR_SUCCESS;
 		} else {
 			return RES_UNDEFINED_ERROR;
@@ -77,5 +77,30 @@ public:
 			return RES_RMDIR_INVALID_PATH;
 		}
 		return RES_RMDIR_SUCCESS;
+	}
+
+	static string uploadFile(vector<UserTeam> usersTeams, string teamName, string username, string dirPath, string fileName) {
+		if (!UserTeamService::isInTeam(usersTeams, teamName, username)) {
+			return RES_FORBIDDEN_ERROR;
+		}
+		string fullDirPath = ROOT_DATA_PATH + teamName + "/" + dirPath;
+		if (!fs::exists(fullDirPath)) {
+			return RES_UPLOAD_INVALID_REMOTE_PATH;
+		}
+		if (fs::exists(fullDirPath + "/" + fileName)) {
+			return RES_UPLOAD_FILE_EXIST;
+		}
+		return RES_UPLOAD_SUCCESS;
+	}
+
+	static string downloadFile(vector<UserTeam> usersTeams, string teamName, string username, string filePath) {
+		if (!UserTeamService::isInTeam(usersTeams, teamName, username)) {
+			return RES_FORBIDDEN_ERROR;
+		}
+		string fullFilePath = ROOT_DATA_PATH + teamName + "/" + fullFilePath;
+		if (!fs::exists(fullFilePath)) {
+			return RES_DOWNLOAD_INVALID_PATH;
+		}
+		return RES_DOWNLOAD_SUCCESS;
 	}
 };
