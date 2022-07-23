@@ -207,6 +207,11 @@ sockaddr_in constructAddr(string ipAddr, int port) {
 	return serverAddr;
 }
 
+string splitDataStreaming(char* receiveData) {
+	string result(receiveData + 4);
+	return result;
+}
+
 int sReceive(SOCKET s, char* buff, int size, int flags) {
 	int ret = recv(s, buff, size, flags);
 	if (ret == SOCKET_ERROR)
