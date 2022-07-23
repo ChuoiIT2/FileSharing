@@ -13,6 +13,8 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
+#include <map>
+#include <utility>
 #include <WS2tcpip.h>
 #include <conio.h>
 
@@ -29,10 +31,6 @@ struct Client {
 	bool isLoggedIn = false;
 	string username;
 	string password;
-	string fileName = ""; //contain file's name need to send
-	string responseFileName = ""; //file's name response
-	FILE* ptrInput = NULL; //file pointer to file need to send
-	FILE* ptrOutput = NULL; //file pointer to result file receive from server
 };
 
 int handleArguments(int argc, char**argv);
@@ -43,17 +41,15 @@ void authScreen();
 void homeScreen();
 void loginScreen();
 void registerScreen();
-void handleChoiceHomeScreen();
 
-//hanlde user's selection
-void handleCreateTeam();
-void handleJoinTeam();
-void handleUploadFile();
-void handleDownloadFile();
-void handleDeleteFile();
-void handleCreateFolder();
-void handleDeleteFolder();
-void handleGetTeams();
-void handleGetFileStructure();
-void handleProcessTeamReq();
-void handleLogout();
+// Handle functions
+int handleAddTeam();
+int handleJoinTeam();
+int handleAccept();
+int handleReqUpload();
+int handleRm();
+int handleMkdir();
+int handleRmdir();
+int handleReqDownload();
+int handleGetTeams();
+int handleViewFS();
