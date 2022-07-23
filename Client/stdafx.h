@@ -46,6 +46,8 @@ void registerScreen();
 void handleChoiceHomeScreen();
 
 //hanlde user's selection
+void handleLogin();
+void handleRegister();
 void handleCreateTeam();
 void handleJoinTeam();
 void handleUploadFile();

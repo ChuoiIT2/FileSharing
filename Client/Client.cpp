@@ -129,11 +129,10 @@ int handleUpload(string filePath) {
 	char sBuff[BUFF_SIZE] = "";
 	int REQ_UPLOADING_LEN = strlen(REQ_UPLOADING);
 	memcpy_s(sBuff + 4, REQ_UPLOADING_LEN, REQ_UPLOADING, REQ_UPLOADING_LEN);
-	memcpy_s(sBuff + 5, 1, " ", 1); // Add space after header
+	memcpy_s(sBuff + 5 + REQ_UPLOADING_LEN, 1, " ", 1); // Add space after header
 
 	int sentBytes = 0, length = 0, readBytes = 0;
-
-	cout << "-> Uploading file to server...";
+	cout << "-> Uploading file to server...\n";
 	do {
 		// 5 is length of "length" + length of " "(space)
 		readBytes = fread(sBuff + REQ_UPLOADING_LEN + 5, 1, BUFF_SIZE - (REQ_UPLOADING_LEN + 5), file);
@@ -252,6 +251,14 @@ void registerScreen() {
 	}
 }
 
+void handleLogin() {
+
+}
+
+void handleRegister() {
+
+}
+
 void handleChoiceHomeScreen() {
 	int select = -1;
 	bool valid = false;
@@ -316,15 +323,77 @@ void handleJoinTeam() {
 }
 
 void handleUploadFile() {
+	string teamName, filePath;
 	system("cls");
-	cout << "\nHandle \n";
+	cout << "\nHandle upload file\n";
+	cout << ">Enter team name: ";
+	cin >> teamName;
+	cout << "\n>Enter file path: ";
+	cin >> filePath;
+	handleUpload(filePath);
 	_getch();
 }
 
 void handleDownloadFile() {
+	string teamName, filePath;
 	system("cls");
-	cout << "\nHandle \n";
+	cout << "\nHandle download file\n";
+	cout << ">Enter team name: ";
+	cin >> teamName;
+	cout << "\n>Enter file path: ";
+	cin >> filePath;
+
+	string request = string(REQ_DOWNLOAD) + " " + teamName + " " + filePath;
+	char sendBuff[BUFF_SIZE] = "", recvBuff[BUFF_SIZE] = "";
+	strcpy_s(sendBuff, request.c_str());
+
+	sSend(sendBuff, strlen(sendBuff), 0);
+	int ret = sReceive(recvBuff);
+	char codeRes[3] = "";
+	memcpy_s(codeRes, 3, recvBuff, 3);
+
+	if (strcmp(codeRes, RES_REQ_DOWNLOAD_SUCCESS) == 0) {
+		cout << "-->Server accept download\n";
+		client.ptrOutput = fopen("Download", "wb");
+		handleDownload();
+	}
+
+	if (strcmp(codeRes, RES_UNDEFINED_ERROR) == 0) {
+		cout << MSG_UNDEFINED_ERROR << endl;
+	}
+
+	if (strcmp(codeRes, RES_UNAUTHORIZED_ERROR) == 0) {
+		cout << MSG_UNAUTHORIZED_ERROR << endl;
+	}
+
+	if (strcmp(codeRes, RES_FORBIDDEN_ERROR) == 0) {
+		cout << MSG_FORBIDDEN_ERROR << endl;
+	}
+
+	if (strcmp(codeRes, RES_DOWNLOAD_INVALID_PATH) == 0) {
+		cout << MSG_DOWNLOAD_INVALID_PATH << endl;
+	}
 	_getch();
+}
+
+void handleDownload() {
+	char rBuff[BUFF_SIZE];
+	int ret;
+	int length = 0;
+	do {
+		ret = sReceive(rBuff);
+		if (ret <= 0) {
+			cout << "-->Cannot receive data\n";
+			break;
+		}
+		char cLength[4];
+		//"102" + " " + 4 bytelength + data
+		memcpy_s(cLength, 4, rBuff + 3 + 1, 4);
+		length = Helpers::getLength(cLength);
+		fwrite(rBuff + 9, 1, length, client.ptrOutput);
+	} while (length != 0);
+	fclose(client.ptrOutput);
+	cout << "-->Download complete\n";
 }
 
 void handleDeleteFile() {

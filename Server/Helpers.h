@@ -17,4 +17,5 @@ public:
 	static const wchar_t* to_wchar_t(string str);
 	static void printWSAError(int error, string text);
 	static const char* convertLength(int length);
+	static const int getLength(char *cLength);
 };
