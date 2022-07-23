@@ -1,10 +1,11 @@
+#pragma once
+
 #include <iostream>
 #include <vector>
 #include <algorithm>
 #include "Helpers.h"
 #include "protocols.h"
 
-#pragma once
 
 #ifndef DB_BUFF
 #define DB_BUFF 200000

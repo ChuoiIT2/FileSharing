@@ -23,6 +23,7 @@ int constructWinsock() {
 		cout << "Error: Winsock 2.2 is not supported\n";
 		return 1;
 	}
+	return 0;
 }
 
 int constructSocket() {
@@ -106,9 +107,8 @@ int sReceive(char* buff, int size = BUFF_SIZE, int flags = 0) {
 		} else {
 			Helpers::printWSAError(WSAGetLastError(), "Cannot receive data");
 		}
-	} else {
-		return ret;
 	}
+	return ret;
 }
 
 int sSend(char* buff, int size, int flags = 0) {
@@ -119,43 +119,51 @@ int sSend(char* buff, int size, int flags = 0) {
 	return ret;
 }
 
-int handleUpload() {
-	unsigned char sBuff[BUFF_SIZE] = "";
-	memcpy(sBuff, REQ_UPLOADING, string(REQ_UPLOADING).size());
+int handleUpload(string filePath) {
+	errno_t error = fopen_s(&file, filePath.c_str(), "rb");
+	if (error) {
+		cout << "Error: Cannot open file: " << filePath << endl;
+		return 1;
+	}
+
+	char sBuff[BUFF_SIZE] = "";
+	int REQ_UPLOADING_LEN = strlen(REQ_UPLOADING);
+	memcpy_s(sBuff + 4, REQ_UPLOADING_LEN, REQ_UPLOADING, REQ_UPLOADING_LEN);
+	memcpy_s(sBuff + 5, 1, " ", 1); // Add space after header
 
 	int sentBytes = 0, length = 0, readBytes = 0;
 
-	printf("-> Uploading file to server...\n");
+	cout << "-> Uploading file to server...";
 	do {
-		readBytes = fread(sBuff + 5, sizeof(char), BUFF_SIZE - 5, file);
+		// 5 is length of "length" + length of " "(space)
+		readBytes = fread(sBuff + REQ_UPLOADING_LEN + 5, 1, BUFF_SIZE - (REQ_UPLOADING_LEN + 5), file);
 		if (readBytes == 0) {
 			break;
 		}
 
 		const char* sLength = Helpers::convertLength(readBytes);
-		memcpy_s(sBuff + 1, 4, sLength, 4);
+		memcpy_s(sBuff, 4, sLength, 4);
 
-		sentBytes = sSend((char*)sBuff, 5 + readBytes, 0);
-		if (ret == SOCKET_ERROR) {
-			printf("Error %d: Cannot send data\n", WSAGetLastError());
-			return;
+		sentBytes = sSend(sBuff, REQ_UPLOADING_LEN + 5 + readBytes);
+		if (sentBytes == SOCKET_ERROR) {
+			return 1;
 		}
 		Sleep(50);
-		printf(".");
+		cout << ".";
 	} while (readBytes > 0);
 
 	// Complete transfer file
-	const char* sLength = convertLength(0);
-	memcpy_s(sBuff + 1, 4, sLength, 4);
-	sentBytes = send(client, (char*)sBuff, 5, 0);
+	const char* sLength = Helpers::convertLength(0);
+	memcpy_s(sBuff, 4, sLength, 4);
+	sentBytes = sSend(sBuff, REQ_UPLOADING_LEN + 5);
 	if (sentBytes == SOCKET_ERROR) {
-		printf("Error %d: Cannot send data\n", WSAGetLastError());
-		return;
+		return 1;
 	}
 
-	printf("\nComplete sending file to server!\n");
+	cout << "Uploaded file";
+	fclose(file);
 
-	fclose(fData);
+	return 0;
 }
 
 void mainScreen() {

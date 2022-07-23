@@ -101,6 +101,6 @@ public:
 		if (!fs::exists(fullFilePath)) {
 			return RES_DOWNLOAD_INVALID_PATH;
 		}
-		return RES_DOWNLOAD_SUCCESS;
+		return RES_REQ_DOWNLOAD_SUCCESS;
 	}
 };
