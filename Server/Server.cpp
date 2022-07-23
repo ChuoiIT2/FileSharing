@@ -207,8 +207,15 @@ sockaddr_in constructAddr(string ipAddr, int port) {
 	return serverAddr;
 }
 
-string splitDataStreaming(char* receiveData) {
-	string result(receiveData + 4);
+vector<string> splitDataStreaming(char* receiveData) {
+	string dataSplit(receiveData + 4);
+
+	string::size_type pos = dataSplit.find_first_of(" ");
+	string methodRequest = dataSplit.substr(0, pos);
+	string payload = dataSplit.substr(pos + 1);
+
+	vector<string> result = { methodRequest, payload };
+
 	return result;
 }
 

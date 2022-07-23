@@ -119,14 +119,14 @@ int sSend(char* buff, int size, int flags = 0) {
 	return ret;
 }
 
-char* streamingData(char* requestMethod) {
-	int requestMethodLength = strlen(requestMethod);
+char* streamingData(char* dataSending) {
+	int requestMethodLength = strlen(dataSending);
 	const char* sLength = Helpers::convertLength(requestMethodLength);
 	int resLength = requestMethodLength + 4;
 
 	char *result = new char[resLength];
 	memcpy_s(result, 4, sLength, 4);
-	memcpy_s(result + 4, requestMethodLength, requestMethod, requestMethodLength);
+	memcpy_s(result + 4, requestMethodLength, dataSending, requestMethodLength);
 	result[resLength] = 0;
 
 	return result;
