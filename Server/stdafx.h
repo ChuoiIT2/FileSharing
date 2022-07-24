@@ -24,6 +24,12 @@ struct Client {
 	vector<string> teams;
 	vector<string> fileStructure;
 	bool isLoggedIn;
+
+	string curTeam;
+	string curDirPath;
+	string curFileName;
+	FILE* file;
+	bool isUploading;
 };
 
 struct ThreadInfo {
