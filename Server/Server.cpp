@@ -427,6 +427,7 @@ int handleSaveFile(SOCKET clientSocket, string filePath) {
 
 	if (error != 0) {
 		cout << "Error: Cannot open file: " << filePath << endl;
+		return 1;
 	}
 
 	char rBuff[BUFF_SIZE] = "", sDataLength[4] = "";
