@@ -353,6 +353,8 @@ string handleRequest(char* buff, Client &client) {
 		}
 		vector<string> result;
 		return FileService::viewFileStructure(usersTeams, detailPayload[0], client.username, client.fileStructure);
+	} else {
+		return RES_UNDEFINED_ERROR;
 	}
 }
 
