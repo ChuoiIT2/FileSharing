@@ -449,7 +449,9 @@ int handleSaveFile(SOCKET clientSocket, string filePath) {
 		} else {
 			fwrite(rBuff + 4, sizeof(char), dataLength, file);
 		}
-	} while(dataLength != 0)
+	} while (dataLength != 0);
+
+	return 0;
 }
 
 int handleSendFile(SOCKET clientSocket, string filePath) {
