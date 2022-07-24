@@ -10,7 +10,6 @@ string UserService::DB_PATH, TeamService::DB_PATH, UserTeamService::DB_PATH;
 
 string SERVER_HOST;
 int SERVER_PORT;
-int choice = -1;
 FILE* file;
 map<string, string> resToMsg;
 
@@ -214,8 +213,7 @@ int handleDownload(string filePath) {
 	do {
 		ret = sReceive(rBuff);
 		if (ret <= 0) {
-			cout << "\nError while downloading file~\n";
-			exit(0);
+			return 1;
 		}
 		cout << "-->Received " << ret << " bytes\n";
 		//msg: "102" + " " + "4byte length" + data;
@@ -229,20 +227,44 @@ int handleDownload(string filePath) {
 			fwrite(rBuff + 8, 1, length, file);
 		}
 	} while (length != 0);
+
+	return 0;
 }
 
 void handleResponse(string requestType, string res) {
+	string msg = resToMsg[res];
 	if (requestType == REQ_REGISTER) {
 		if (res == RES_REGISTER_SUCCESS) {
 			client.isLoggedIn = true;
 		}
-	} else if (requestType == REQ_LOGIN) {
+	}
+	else if (requestType == REQ_LOGIN) {
 		if (res == RES_LOGIN_SUCCESS) {
 			client.isLoggedIn = true;
 		}
 	}
+	else if (requestType == REQ_DOWNLOAD) {
+		if (res == RES_REQ_DOWNLOAD_SUCCESS) {
+			if (handleDownload(client.downloadFileName)) {
+				msg = "Error while downloading file";
+			}
+			else {
+				msg = "Download file completed";
+			}
+		}
+	}
+	else if (requestType == REQ_UPLOAD) {
+		if (res == RES_REQ_UPLOAD_SUCCESS) {
+			if (handleUpload(client.uploadFilePath)) {
+				msg = "Error while uploading file";
+			}
+			else {
+				msg = "Upload file completed";
+			}
+		}
+	}
 
-	cout << "* " << resToMsg[res] << endl;
+	cout << "* " << msg << endl;
 }
 
 int sendAndReceive(string requestType, vector<string> data) {
@@ -345,6 +367,7 @@ int handleAddTeam() {
 	string teamName;
 	cout << "Enter team name to create: ";
 	cin >> teamName;
+
 	return sendAndReceive(REQ_ADDTEAM, { teamName });
 }
 
@@ -352,6 +375,7 @@ int handleJoinTeam() {
 	string teamName;
 	cout << "Enter team name to join: ";
 	cin >> teamName;
+
 	return sendAndReceive(REQ_JOIN, { teamName });
 }
 
@@ -361,6 +385,7 @@ int handleAccept() {
 	cin >> teamName;
 	cout << "Enter username for accept: ";
 	cin >> username;
+
 	return sendAndReceive(REQ_ACCEPT, { teamName, username });
 }
 
@@ -370,6 +395,7 @@ int handleReqUpload() {
 	cin >> teamName;
 	cout << "Enter directory path at remote storage:\n";
 	cin >> remoteDirPath;
+	client.uploadFilePath = remoteDirPath;
 
 	return sendAndReceive(REQ_UPLOAD, { teamName, remoteDirPath });
 }
@@ -380,6 +406,7 @@ int handleRm() {
 	cin >> teamName;
 	cout << "Enter file path at remote storage:\n";
 	cin >> remoteFilePath;
+
 	return sendAndReceive(REQ_RM, { teamName, remoteFilePath });
 }
 
@@ -401,6 +428,7 @@ int handleRmdir() {
 	cin >> teamName;
 	cout << "Enter directory path at remote storage:\n";
 	cin >> remoteDirPath;
+
 	return sendAndReceive(REQ_RMDIR, { teamName, remoteDirPath });
 }
 
@@ -410,6 +438,9 @@ int handleReqDownload() {
 	cin >> teamName;
 	cout << "Enter file path at remote storage:\n";
 	cin >> remoteFilePath;
+	cout << "Enter file's name to save:\n";
+	cin >> client.downloadFileName;
+
 	return sendAndReceive(REQ_DOWNLOAD, { teamName, remoteFilePath });
 }
 

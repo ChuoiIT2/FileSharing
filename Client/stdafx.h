@@ -31,6 +31,8 @@ struct Client {
 	bool isLoggedIn = false;
 	string username;
 	string password;
+	string downloadFileName;
+	string uploadFilePath;
 };
 
 int handleArguments(int argc, char**argv);
