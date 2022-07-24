@@ -217,7 +217,7 @@ int handleUpload(string filePath) {
 	memcpy_s(sBuff + 4 + REQ_UPLOADING_LEN, 1, " ", 1); // Add space after header
 
 	int sentBytes = 0, length = 0, readBytes = 0;
-	cout << "-> Uploading file to server...\n";
+	cout << "-> Uploading file to server...";
 	do {
 		// 5 is length of "length" + length of " "(space)
 		readBytes = fread(sBuff + REQ_UPLOADING_LEN + 5, 1, BUFF_SIZE - (REQ_UPLOADING_LEN + 5), file);
@@ -243,7 +243,7 @@ int handleUpload(string filePath) {
 	if (sentBytes == SOCKET_ERROR) {
 		return 1;
 	}
-	cout << "Uploaded file";
+	cout << "\nComplete!\n";
 	fclose(file);
 
 	return 0;

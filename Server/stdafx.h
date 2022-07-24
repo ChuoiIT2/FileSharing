@@ -29,7 +29,7 @@ struct Client {
 	string curDirPath;
 	string curFileName;
 	FILE* file;
-	bool isUploading;
+	bool isOpeningFile = false;
 };
 
 struct ThreadInfo {

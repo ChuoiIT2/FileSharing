@@ -22,7 +22,7 @@ using namespace std;
 
 #pragma comment(lib, "Ws2_32.lib")
 
-#define BUFF_SIZE 100000
+#define BUFF_SIZE 50000
 #define TRANSFER_CODE 0
 #define ERROR_CODE 1
 
