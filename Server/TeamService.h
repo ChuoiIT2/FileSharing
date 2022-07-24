@@ -57,9 +57,11 @@ public:
 
 		string teamName = team.getName();
 		if (isExisted(teams, teamName)) {
+			fclose(fTeam);
 			return RES_ADDTEAM_EXISTED;
 		} else {
 			if (UserTeamService::createTeam(userTeams, teamName, username)) {
+				fclose(fTeam);
 				return RES_UNDEFINED_ERROR;
 			}
 			teams.push_back(team);

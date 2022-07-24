@@ -42,9 +42,11 @@ int handleArguments(int argc, char** argv) {
 }
 
 void readDb() {
-	UserService::readDb(users);
-	TeamService::readDb(teams);
-	UserTeamService::readDb(usersTeams);
+	if (UserService::readDb(users) ||
+		TeamService::readDb(teams) ||
+		UserTeamService::readDb(usersTeams)) {
+		exit(1);
+	}
 }
 
 int main(int argc, char** argv) {

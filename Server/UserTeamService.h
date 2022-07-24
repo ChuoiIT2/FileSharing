@@ -127,6 +127,7 @@ public:
 				+ to_string(UserTeamStatus::PENDING)
 				+ "\n";
 			fwrite(buff.c_str(), sizeof(char), buff.size(), fUserTeam);
+			fclose(fUserTeam);
 
 			usersTeams.push_back(UserTeam(username, teamName));
 
