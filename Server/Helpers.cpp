@@ -51,5 +51,5 @@ const char* Helpers::convertLength(int length) {
 }
 
 const int Helpers::getLength(char *cLength) {
-	return (1 << 21) * cLength[1] + (1 << 14) * cLength[2] + (1 << 7) * cLength[3] + cLength[4];
+	return (1 << 21) * cLength[0] + (1 << 14) * cLength[1] + (1 << 7) * cLength[2] + cLength[3];
 }
