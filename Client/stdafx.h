@@ -32,6 +32,7 @@ struct Client {
 	string username;
 	string password;
 	string downloadFileName;
+	string uploadFileName;
 	string uploadFilePath;
 };
 
