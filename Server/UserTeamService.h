@@ -141,7 +141,7 @@ public:
 		// check if team exist, leave util Team is completed
 		if (isExistTeam(teams, teamName)) {
 			// Check isAdmin
-			if (!isAdmin(usersTeams, teamName, username)) {
+			if (!isAdmin(usersTeams, teamName, ownerUsername)) {
 				return RES_FORBIDDEN_ERROR;
 			}
 			bool hasRequest = false;
