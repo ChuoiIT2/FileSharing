@@ -49,3 +49,7 @@ const char* Helpers::convertLength(int length) {
 
 	return result;
 }
+
+const int Helpers::getLength(char *cLength) {
+	return (1 << 21) * cLength[0] + (1 << 14) * cLength[1] + (1 << 7) * cLength[2] + cLength[3];
+}
