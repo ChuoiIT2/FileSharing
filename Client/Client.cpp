@@ -345,7 +345,7 @@ int sendAndReceive(string requestType, vector<string> data) {
 		dataAfterReq += (" " + str);
 	}
 	string payload = requestType;
-	payload += (" " + dataAfterReq);
+	payload += dataAfterReq;
 	int length = payload.length();
 	const char* sLength = Helpers::convertLength(length);
 
