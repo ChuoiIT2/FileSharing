@@ -71,10 +71,11 @@ public:
 			return RES_FORBIDDEN_ERROR;
 		}
 		string pathToRemove = ROOT_DATA_PATH + teamName + "/" + dirPath;
-		auto numRemoved = fs::remove_all(fs::path(pathToRemove));
-		if (numRemoved == 0) {
+		if (!fs::exists(pathToRemove)) {
 			return RES_RMDIR_INVALID_PATH;
 		}
+		fs::remove_all(fs::path(pathToRemove));
+
 		return RES_RMDIR_SUCCESS;
 	}
 
