@@ -498,7 +498,3 @@ int handleSendFile(SOCKET clientSocket, string filePath) {
 
 	return 0;
 }
-
-int handleReceiveFile() {
-
-}
