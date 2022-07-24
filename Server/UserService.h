@@ -46,6 +46,7 @@ public:
 			// Check user is already exist
 			for (auto _user : users) {
 				if (_user.getUsername() == user.getUsername()) {
+					fclose(fUser);
 					return RES_REGISTER_ACCOUNT_EXIST;
 				}
 			}
