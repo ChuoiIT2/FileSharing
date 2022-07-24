@@ -353,6 +353,8 @@ string handleRequest(char* buff, Client &client) {
 		}
 		vector<string> result;
 		return FileService::viewFileStructure(usersTeams, detailPayload[0], client.username, client.fileStructure);
+	} else {
+		return RES_UNDEFINED_ERROR;
 	}
 }
 
@@ -427,6 +429,7 @@ int handleSaveFile(SOCKET clientSocket, string filePath) {
 
 	if (error != 0) {
 		cout << "Error: Cannot open file: " << filePath << endl;
+		return 1;
 	}
 
 	char rBuff[BUFF_SIZE] = "", sDataLength[4] = "";
@@ -449,7 +452,9 @@ int handleSaveFile(SOCKET clientSocket, string filePath) {
 		} else {
 			fwrite(rBuff + 4, sizeof(char), dataLength, file);
 		}
-	} while(dataLength != 0)
+	} while (dataLength != 0);
+
+	return 0;
 }
 
 int handleSendFile(SOCKET clientSocket, string filePath) {
