@@ -275,11 +275,17 @@ string handleRequest(char* buff, Client &client) {
 			// ADDTEAM [team_name]
 			return RES_UNDEFINED_ERROR;
 		}
+		if (!client.isLoggedIn) {
+			return RES_UNAUTHORIZED_ERROR;
+		}
 		return TeamService::createTeam(usersTeams, teams, { detailPayload[0] }, client.username);
 	} else if (method == REQ_JOIN) {
 		// JOIN [team_name]
 		if (detailPayload.size() != 1) {
 			return RES_UNDEFINED_ERROR;
+		}
+		if (!client.isLoggedIn) {
+			return RES_UNAUTHORIZED_ERROR;
 		}
 		return UserTeamService::requestJoinTeam(usersTeams, teams, detailPayload[0], client.username);
 	} else if (method == REQ_ACCEPT) {
@@ -287,11 +293,17 @@ string handleRequest(char* buff, Client &client) {
 		if (detailPayload.size() != 2) {
 			return RES_UNDEFINED_ERROR;
 		}
+		if (!client.isLoggedIn) {
+			return RES_UNAUTHORIZED_ERROR;
+		}
 		return UserTeamService::acceptRequest(usersTeams, teams, detailPayload[0], client.username, detailPayload[1]);
 	} else if (method == REQ_UPLOAD) {
 		// UPLOAD [team_name] [remote_dir_path] [fileName]
 		if (detailPayload.size() != 3) {
 			return RES_UNDEFINED_ERROR;
+		}
+		if (!client.isLoggedIn) {
+			return RES_UNAUTHORIZED_ERROR;
 		}
 		return FileService::uploadFile(usersTeams, detailPayload[0], client.username, detailPayload[1], detailPayload[2]);
 	} else if (method == REQ_UPLOADING) {
@@ -300,11 +312,17 @@ string handleRequest(char* buff, Client &client) {
 		if (detailPayload.size() != 2) {
 			return RES_UNDEFINED_ERROR;
 		}
+		if (!client.isLoggedIn) {
+			return RES_UNAUTHORIZED_ERROR;
+		}
 		return FileService::removeFile(usersTeams, detailPayload[0], client.username, detailPayload[1]);
 	} else if (method == REQ_MKDIR) {
 		// MKDIR [team_name] [path] [dir_name]
 		if (detailPayload.size() != 3) {
 			return RES_UNDEFINED_ERROR;
+		}
+		if (!client.isLoggedIn) {
+			return RES_UNAUTHORIZED_ERROR;
 		}
 		return FileService::createDir(usersTeams, detailPayload[0], client.username, detailPayload[1], detailPayload[2]);
 	} else if (method == REQ_RMDIR) {
@@ -312,17 +330,26 @@ string handleRequest(char* buff, Client &client) {
 		if (detailPayload.size() != 2) {
 			return RES_UNDEFINED_ERROR;
 		}
+		if (!client.isLoggedIn) {
+			return RES_UNAUTHORIZED_ERROR;
+		}
 		return FileService::removeDir(usersTeams, detailPayload[0], client.username, detailPayload[1]);
 	} else if (method == REQ_DOWNLOAD) {
 		// DOWNLOAD [team_name] [remote_file_path]
 		if (detailPayload.size() != 2) {
 			return RES_UNDEFINED_ERROR;
 		}
+		if (!client.isLoggedIn) {
+			return RES_UNAUTHORIZED_ERROR;
+		}
 		return FileService::downloadFile(usersTeams, detailPayload[0], client.username, detailPayload[1]);
 	} else if (method == REQ_TEAMS) {
 		// TEAMS
 		if (detailPayload.size() != 0) {
 			return RES_UNDEFINED_ERROR;
+		}
+		if (!client.isLoggedIn) {
+			return RES_UNAUTHORIZED_ERROR;
 		}
 		string result = UserTeamService::getTeamsOfUser(usersTeams, client.username, client.teams);
 		for (auto teamName : client.teams) {
@@ -333,6 +360,9 @@ string handleRequest(char* buff, Client &client) {
 		// VIEW [team_name]
 		if (detailPayload.size() != 1) {
 			return RES_UNDEFINED_ERROR;
+		}
+		if (!client.isLoggedIn) {
+			return RES_UNAUTHORIZED_ERROR;
 		}
 		string result = FileService::viewFileStructure(usersTeams, detailPayload[0], client.username, client.fileStructure);
 		for (auto item : client.fileStructure) {
