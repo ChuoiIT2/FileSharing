@@ -103,7 +103,7 @@ public:
 		if (isExistTeam(teams, teamName)) {
 			// Check the request existant
 			for (auto userTeam : usersTeams) {
-				if (userTeam.getUsername() == username) {
+				if (userTeam.getUsername() == username && userTeam.getTeamName() == teamName) {
 					if (userTeam.getStatus() == UserTeamStatus::JOINED) {
 						// Case already active in team
 						return RES_JOIN_ALREADY_IN;
