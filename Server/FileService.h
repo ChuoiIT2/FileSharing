@@ -29,14 +29,14 @@ public:
 		return RES_VIEW_SUCCESS;
 	}
 
-	static string removeFile(vector<UserTeam> usersTeams, string teamName, string username, string data) {
+	static string removeFile(vector<UserTeam> usersTeams, string teamName, string username, string filePath) {
 		if (!UserTeamService::isAdmin(usersTeams, teamName, username)) {
 			return RES_FORBIDDEN_ERROR;
 		}
 
 		int result;
 
-		const char* fileName = data.c_str();
+		const char* fileName = filePath.c_str();
 		result = remove(fileName);
 		if (!result)
 			return RES_RM_SUCCESS;

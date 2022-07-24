@@ -10,7 +10,7 @@
 #include <vector>
 #include <cstdlib>
 
-#define BUFF_SIZE 2048
+#define BUFF_SIZE 100000
 #define MAX_THREAD 10
 
 using namespace std;
@@ -21,6 +21,9 @@ struct Client {
 	char ipAddr[INET_ADDRSTRLEN];
 	int port;
 	string username;
+	vector<string> teams;
+	vector<string> fileStructure;
+	bool isLoggedIn;
 };
 
 struct ThreadInfo {

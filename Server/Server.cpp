@@ -219,20 +219,21 @@ vector<string> splitDataStreaming(char* receiveData) {
 	return result;
 }
 
-int sReceive(SOCKET s, char* buff, int size, int flags) {
+int sReceive(SOCKET s, char* buff, int size = BUFF_SIZE, int flags = 0) {
 	int ret = recv(s, buff, size, flags);
-	if (ret == SOCKET_ERROR)
-		cout << "Error " << WSAGetLastError() << ": Cannot receive data.\n";
-	else if (ret == 0)
-		cout << "Client disconnects.\n";
+	if (ret == SOCKET_ERROR) {
+		Helpers::printWSAError(WSAGetLastError(), "Cannot receive data");
+	}
+
 	return ret;
 }
 
 /* The send() wrapper function*/
-int sSend(SOCKET s, char* buff, int size, int flags) {
+int sSend(SOCKET s, char* buff, int size, int flags = 0) {
 	int ret = send(s, buff, size, flags);
-	if (ret == SOCKET_ERROR)
-		cout << "Error " << WSAGetLastError() << ": Cannot send data.\n";
+	if (ret == SOCKET_ERROR) {
+		Helpers::printWSAError(WSAGetLastError(), "Cannot send data");
+	}
 	return ret;
 }
 
@@ -253,6 +254,105 @@ void cleanUp(int iThread, int index) {
 	clients[iThread][WSA_MAXIMUM_WAIT_EVENTS - 1].socket = 0;
 
 	threads[iThread].nEvents--;
+}
+
+string handleRequest(char* buff, Client &client) {
+	vector<string> reqData = splitDataStreaming(buff);
+	string method = reqData[0];
+	string payload = reqData[1];
+
+	vector<string> detailPayload;
+	if (method != REQ_UPLOADING) {
+		detailPayload = Helpers::splitString(payload, ' ');
+	}
+
+	if (method == REQ_REGISTER) {
+		// REGISTER[username][password]
+		if (detailPayload.size() != 2) {
+			return RES_UNDEFINED_ERROR;
+		}
+
+		string result = UserService::registerAccount(users, { detailPayload[0], detailPayload[1] });
+		if (result == RES_REGISTER_SUCCESS) {
+			client.username = detailPayload[0];
+			client.isLoggedIn = true;
+		}
+		return result;
+	} else if (method == REQ_LOGIN) {
+		// LOGIN [username] [password]
+		if (detailPayload.size() != 2) {
+			return RES_UNDEFINED_ERROR;
+		}
+
+		string result = UserService::checkLogin(users, { detailPayload[0], detailPayload[1] });
+		if (result == RES_REGISTER_SUCCESS) {
+			client.username = detailPayload[0];
+			client.isLoggedIn = true;
+		}
+		return result;
+	} else if (method == REQ_ADDTEAM) {
+		if (detailPayload.size() != 1) {
+			// ADDTEAM [team_name]
+			return RES_UNDEFINED_ERROR;
+		}
+		return TeamService::createTeam(usersTeams, teams, { detailPayload[0] }, client.username);
+	} else if (method == REQ_JOIN) {
+		// JOIN [team_name]
+		if (detailPayload.size() != 1) {
+			return RES_UNDEFINED_ERROR;
+		}
+		return UserTeamService::requestJoinTeam(usersTeams, teams, detailPayload[0], client.username);
+	} else if (method == REQ_ACCEPT) {
+		// ACCEPT [team_name] [username]
+		if (detailPayload.size() != 2) {
+			return RES_UNDEFINED_ERROR;
+		}
+		return UserTeamService::acceptRequest(usersTeams, teams, detailPayload[0], client.username, detailPayload[1]);
+	} else if (method == REQ_UPLOAD) {
+		// UPLOAD [team_name] [remote_dir_path] [fileName]
+		if (detailPayload.size() != 3) {
+			return RES_UNDEFINED_ERROR;
+		}
+		return FileService::uploadFile(usersTeams, detailPayload[0], client.username, detailPayload[1], detailPayload[2]);
+	} else if (method == REQ_UPLOADING) {
+	} else if (method == REQ_RM) {
+		// RM [team_name] [remote_file_path]
+		if (detailPayload.size() != 2) {
+			return RES_UNDEFINED_ERROR;
+		}
+		return FileService::removeFile(usersTeams, detailPayload[0], client.username, detailPayload[1]);
+	} else if (method == REQ_MKDIR) {
+		// MKDIR [team_name] [path] [dir_name]
+		if (detailPayload.size() != 3) {
+			return RES_UNDEFINED_ERROR;
+		}
+		return FileService::createDir(usersTeams, detailPayload[0], client.username, detailPayload[1], detailPayload[2]);
+	} else if (method == REQ_RMDIR) {
+		// RMDIR [team_name] [remote_dir_path]
+		if (detailPayload.size() != 2) {
+			return RES_UNDEFINED_ERROR;
+		}
+		return FileService::removeDir(usersTeams, detailPayload[0], client.username, detailPayload[1]);
+	} else if (method == REQ_DOWNLOAD) {
+		// DOWNLOAD [team_name] [remote_file_path]
+		if (detailPayload.size() != 2) {
+			return RES_UNDEFINED_ERROR;
+		}
+		return FileService::downloadFile(usersTeams, detailPayload[0], client.username, detailPayload[1]);
+	} else if (method == REQ_TEAMS) {
+		// TEAMS
+		if (detailPayload.size() != 0) {
+			return RES_UNDEFINED_ERROR;
+		}
+		return UserTeamService::getTeamsOfUser(usersTeams, client.username, client.teams);
+	} else if (method == REQ_VIEW) {
+		// VIEW [team_name]
+		if (detailPayload.size() != 1) {
+			return RES_UNDEFINED_ERROR;
+		}
+		vector<string> result;
+		return FileService::viewFileStructure(usersTeams, detailPayload[0], client.username, client.fileStructure);
+	}
 }
 
 unsigned __stdcall worker(void* param) {
@@ -285,16 +385,20 @@ unsigned __stdcall worker(void* param) {
 			}
 
 			ret = sReceive(clients[iThread][index].socket, recvBuff, BUFF_SIZE, 0);
-			printf("Received %s\n", recvBuff);
+			//printf("Received %s\n", recvBuff);
 			if (ret <= 0) {
 				cleanUp(iThread, index);
 				WSAResetEvent(threads[iThread].events[index]);
-
 			} else {
-
 				recvBuff[ret] = 0;
 				memcpy(sendBuff, recvBuff, ret);
-				sSend(clients[iThread][index].socket, sendBuff, strlen(sendBuff), 0);
+
+				string result = handleRequest(recvBuff, clients[iThread][index]);
+				ret = sSend(clients[iThread][index].socket, (char*)result.c_str(), result.length());
+				if (ret == SOCKET_ERROR) {
+					cleanUp(iThread, index);
+				}
+
 				WSAResetEvent(threads[iThread].events[index]);
 			}
 
