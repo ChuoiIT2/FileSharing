@@ -41,40 +41,10 @@ int handleArguments(int argc, char** argv) {
 	return 0;
 }
 
-void testClasses() {
+void readDb() {
 	UserService::readDb(users);
 	TeamService::readDb(teams);
 	UserTeamService::readDb(usersTeams);
-
-	cout << "\nUSERS:\n";
-	for (auto user : users) {
-		cout << user.toString() << "\n";
-	}
-	cout << "\nTEAMS:\n";
-	for (auto team : teams) {
-		cout << team.toString() << "\n";
-	}
-	cout << "\nUSERS_TEAMS:\n";
-	for (auto userTeam : usersTeams) {
-		cout << userTeam.toString() << "\n";
-	}
-
-	cout << "\nTEST LOGIN:\n";
-	cout << "admin-admin: " << UserService::checkLogin(users, User("admin", "admin")) << endl;
-	cout << "wrong-wrong: " << UserService::checkLogin(users, User("wrong", "wrong")) << endl;
-
-	cout << "\nTEST ADDTEAM:\n";
-	cout << TeamService::createTeam(usersTeams, teams, Team("Team space"), "admin") << endl;
-
-	cout << "\nTEST VIEW STRUCTURE:\n";
-	vector<string> files;
-	cout << FileService::viewFileStructure(usersTeams, "team1", "admin", files) << endl;
-	for (auto file : files) {
-		cout << file << "\n";
-	}
-
-	cout << "\nTEST RMDIR:\n";
-	cout << FileService::removeDir(usersTeams, "team1", "admin", "") << endl;
 }
 
 int main(int argc, char** argv) {
@@ -82,6 +52,8 @@ int main(int argc, char** argv) {
 		cout << "Invalid arguments, please try again\n";
 		return 0;
 	}
+
+	readDb();
 
 	constructWinsock();
 	for (int i = 0; i < MAX_THREAD; i++) {
@@ -99,13 +71,13 @@ int main(int argc, char** argv) {
 	serverAddr = constructAddr(SERVER_HOST, SERVER_PORT);
 
 	if (bind(listenSock, (sockaddr*)&serverAddr, sizeof(serverAddr))) {
-		cout << "Error " << WSAGetLastError() << ": Cannot associate a local address with server socket" << endl;
+		Helpers::printWSAError(WSAGetLastError(), "Cannot associate a local address with server socket");
 		WSACleanup();
 		return 0;
 	}
 
 	if (listen(listenSock, 10)) {
-		cout << "Error " << WSAGetLastError() << ": Cannot associate a local address with server socket" << endl;
+		Helpers::printWSAError(WSAGetLastError(), "Cannot associate a local address with server socket");
 		WSACleanup();
 		return 0;
 	}
@@ -125,7 +97,7 @@ int main(int argc, char** argv) {
 		else {
 			inet_ntop(AF_INET, &clientAddr.sin_addr, clientIP, sizeof(clientIP));
 			clientPort = ntohs(clientAddr.sin_port);
-			cout << "Accept incoming connection from " << clientIP << " : " << clientPort << endl;
+			cout << "Accept incoming connection from [" << clientIP << ":" << clientPort << "]\n";
 			int iterThread = 0, iterClient = 0;
 			//@iterThread: index of thread; @iterClient: index of client on thread
 
@@ -387,8 +359,8 @@ unsigned __stdcall worker(void* param) {
 				break;
 			}
 
-			ret = sReceive(clients[iThread][index].socket, recvBuff, BUFF_SIZE, 0);
-			//printf("Received %s\n", recvBuff);
+			ret = sReceive(clients[iThread][index].socket, recvBuff, BUFF_SIZE);
+
 			if (ret <= 0) {
 				cleanUp(iThread, index);
 				WSAResetEvent(threads[iThread].events[index]);
@@ -479,7 +451,7 @@ int handleSendFile(SOCKET clientSocket, string filePath) {
 
 		const char* sLength = Helpers::convertLength(readBytes);
 		memcpy_s(sBuff + RES_DOWNLOADING_LEN + 1, 4, sLength, 4);
-		
+
 		sendBytes = sSend(clientSocket, sBuff, RES_DOWNLOADING_LEN + 5 + readBytes, 0);
 		if (sendBytes == SOCKET_ERROR) {
 			return 1;
