@@ -34,14 +34,13 @@ public:
 			return RES_FORBIDDEN_ERROR;
 		}
 
-		int result;
-
-		const char* fileName = filePath.c_str();
-		result = remove(fileName);
-		if (!result)
+		string fullPath = ROOT_DATA_PATH + teamName + "/" + filePath;
+		int error = remove(fullPath.c_str());
+		if (!error) {
 			return RES_RM_SUCCESS;
-		else
+		} else {
 			return RES_RM_INVALID_REMOTE_PATH;
+		}
 	}
 
 	static string createDir(vector<UserTeam> userTeams, string teamName, string username, string dirPath, string dirName) {
