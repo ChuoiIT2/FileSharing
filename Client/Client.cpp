@@ -407,14 +407,23 @@ void authScreen() {
 	cout << "1. Login\n";
 	cout << "2. Register\n";
 
-	int option = -1;
+	string line;
+	int iOption = -1;
+	bool valid = false;
 
-	do {
-		cout << ">Enter your selection: ";
-		cin >> option;
-	} while (option == 1 && option == 2);
+	while (!valid) {
+		cout << "\n>Enter your selection: ";
+		getline(cin, line);
+		iOption = line[0] - '0';
+		if (iOption < 1 || iOption > 2 || line.size() > 1) {
+			cout << "\n-->Invalid option, please type again!\n";
+			iOption = -1;
+			continue;
+		}
+		valid = true;
+	}
 
-	switch (option) {
+	switch (iOption) {
 		case 1:
 			loginScreen();
 			break;
@@ -462,7 +471,6 @@ void registerScreen() {
 			continue;
 		} else {
 			sendAndReceive(REQ_REGISTER, { client.username, client.password });
-			_getch();
 			break;
 		}
 	}
@@ -634,20 +642,31 @@ void homeScreen() {
 	cout << "10. Process join team request\n";
 	cout << "11. Logout\n";
 
-	int select = -1;
+	string line;
+	int iOption = -1;
 	bool valid = false;
 
 	while (!valid) {
 		cout << "\n>Enter your selection: ";
-		cin >> select;
-		if (select < 1 || select > 11) {
+		getline(cin, line);
+		
+		if (line.size() == 1) {
+			iOption = line[0] - '0';
+		}
+
+		if (line.size() == 2) {
+			iOption = (line[0] - '0') * 10 + (line[1] - '0');
+		}
+
+		if (iOption < 1 || iOption > 11) {
 			cout << "\n-->Invalid option, please type again!\n";
+			iOption = -1;
 			continue;
 		}
 		valid = true;
 	}
 
-	switch (select) {
+	switch (iOption) {
 		case 1:
 			handleAddTeam();
 			break;
