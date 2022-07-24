@@ -20,6 +20,7 @@ public:
 			return RES_FORBIDDEN_ERROR;
 		}
 
+		data.clear();
 		for (const auto & file : fs::recursive_directory_iterator(ROOT_DATA_PATH + teamName)) {
 			string path = file.path().string().replace(0, 6 + teamName.length(), "");
 			data.push_back(path);
