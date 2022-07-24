@@ -450,6 +450,8 @@ void registerScreen() {
 			continue;
 		} else {
 			sendAndReceive(REQ_REGISTER, { client.username, client.password });
+			_getch();
+			break;
 		}
 	}
 }
