@@ -260,7 +260,7 @@ string handleRequest(char* buff, Client &client) {
 		}
 
 		string result = UserService::checkLogin(users, { detailPayload[0], detailPayload[1] });
-		if (result == RES_REGISTER_SUCCESS) {
+		if (result == RES_LOGIN_SUCCESS) {
 			client.username = detailPayload[0];
 			client.isLoggedIn = true;
 		}
