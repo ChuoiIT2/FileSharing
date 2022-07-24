@@ -195,11 +195,40 @@ int handleUpload(string filePath) {
 	if (sentBytes == SOCKET_ERROR) {
 		return 1;
 	}
-
 	cout << "Uploaded file";
 	fclose(file);
 
 	return 0;
+}
+
+int handleDownload(string filePath) {
+	errno_t error = fopen_s(&file, filePath.c_str(), "wb");
+	if (error) {
+		cout << "Error: Cannot open file: " << filePath << endl;
+		return 1;
+	}
+
+	char sBuff[BUFF_SIZE] = "", rBuff[BUFF_SIZE] = "";
+	int length = 0, ret = 0;
+	char cLength[4] = "";
+	do {
+		ret = sReceive(rBuff);
+		if (ret <= 0) {
+			cout << "\nError while downloading file~\n";
+			exit(0);
+		}
+		cout << "-->Received " << ret << " bytes\n";
+		//msg: "102" + " " + "4byte length" + data;
+		memcpy_s(cLength, 4, rBuff + 4, 4);
+		length = Helpers::getLength(cLength);
+		if (length == 0) {
+			cout << "-->Download complete\n";
+			fclose(file);
+		}
+		else {
+			fwrite(rBuff + 8, 1, length, file);
+		}
+	} while (length != 0);
 }
 
 void handleResponse(string requestType, string res) {
@@ -312,13 +341,6 @@ void registerScreen() {
 	}
 }
 
-void handleLogin() {
-
-}
-
-void handleRegister() {
-
-}
 int handleAddTeam() {
 	string teamName;
 	cout << "Enter team name to create: ";
@@ -468,70 +490,4 @@ void homeScreen() {
 		default:
 			break;
 	}
-}
-
-void handleCreateTeam() {
-	system("cls");
-	cout << "\nHandle \n";
-	_getch();
-}
-
-void handleJoinTeam() {
-	system("cls");
-	cout << "\nHandle \n";
-	_getch();
-}
-
-void handleUploadFile() {
-	system("cls");
-	cout << "\nHandle \n";
-	_getch();
-}
-
-void handleDownloadFile() {
-	system("cls");
-	cout << "\nHandle \n";
-	_getch();
-}
-
-void handleDeleteFile() {
-	system("cls");
-	cout << "\nHandle \n";
-	_getch();
-}
-
-void handleCreateFolder() {
-	system("cls");
-	cout << "\nHandle \n";
-	_getch();
-}
-
-void handleDeleteFolder() {
-	system("cls");
-	cout << "\nHandle \n";
-	_getch();
-}
-
-void handleGetTeams() {
-	system("cls");
-	cout << "\nHandle \n";
-	_getch();
-}
-
-void handleGetFileStructure() {
-	system("cls");
-	cout << "\nHandle \n";
-	_getch();
-}
-
-void handleProcessTeamReq() {
-	system("cls");
-	cout << "\nHandle \n";
-	_getch();
-}
-
-void handleLogout() {
-	client.isLoggedIn = false;
-	client.username = "";
-	client.password = "";
 }
