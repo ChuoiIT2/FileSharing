@@ -21,7 +21,8 @@ public:
 		}
 
 		for (const auto & file : fs::recursive_directory_iterator(ROOT_DATA_PATH + teamName)) {
-			data.push_back(file.path().string());
+			string path = file.path().string().replace(0, 6 + teamName.length(), "");
+			data.push_back(path);
 		}
 
 		return RES_VIEW_SUCCESS;

@@ -242,7 +242,7 @@ string handleRequest(char* buff, Client &client) {
 	if (method != REQ_UPLOADING) {
 		detailPayload = Helpers::splitString(payload, ' ');
 	}
-	if (method == REQ_TEAMS || method == REQ_VIEW) {
+	if (method == REQ_TEAMS) {
 		detailPayload.clear();
 	}
 
@@ -338,6 +338,7 @@ string handleRequest(char* buff, Client &client) {
 		for (auto item : client.fileStructure) {
 			result += " " + item;
 		}
+		return result;
 	} else {
 		return RES_UNDEFINED_ERROR;
 	}

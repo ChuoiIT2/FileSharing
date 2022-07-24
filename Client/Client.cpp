@@ -327,6 +327,14 @@ void handleResponse(string requestType, string res) {
 				msg += teams[i] + "\n";
 			}
 		}
+	} else if (requestType == REQ_VIEW) {
+		if (res.find(RES_VIEW_SUCCESS) != string::npos) {
+			vector<string> data = Helpers::splitString(res, ' ');
+			msg = "File structure:\n";
+			for (int i = 1; i < data.size(); i++) {
+				msg += data[i] + "\n";
+			}
+		}
 	}
 
 	cout << "* " << msg << endl;
