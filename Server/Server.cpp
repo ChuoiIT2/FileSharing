@@ -186,6 +186,9 @@ vector<string> splitDataStreaming(char* receiveData) {
 	string dataSplit(receiveData + 4);
 
 	string::size_type pos = dataSplit.find_first_of(" ");
+	if (pos == string::npos) {
+		return{ dataSplit, " " };
+	}
 	string methodRequest = dataSplit.substr(0, pos);
 	string payload = dataSplit.substr(pos + 1);
 
@@ -233,12 +236,14 @@ void cleanUp(int iThread, int index) {
 
 string handleRequest(char* buff, Client &client) {
 	vector<string> reqData = splitDataStreaming(buff);
-	string method = reqData[0];
-	string payload = reqData[1];
-
+	string method = reqData[0], payload = reqData[1];
 	vector<string> detailPayload;
+
 	if (method != REQ_UPLOADING) {
 		detailPayload = Helpers::splitString(payload, ' ');
+	}
+	if (method == REQ_TEAMS || method == REQ_VIEW) {
+		detailPayload.clear();
 	}
 
 	if (method == REQ_REGISTER) {
@@ -319,14 +324,20 @@ string handleRequest(char* buff, Client &client) {
 		if (detailPayload.size() != 0) {
 			return RES_UNDEFINED_ERROR;
 		}
-		return UserTeamService::getTeamsOfUser(usersTeams, client.username, client.teams);
+		string result = UserTeamService::getTeamsOfUser(usersTeams, client.username, client.teams);
+		for (auto teamName : client.teams) {
+			result += " " + teamName;
+		}
+		return result;
 	} else if (method == REQ_VIEW) {
 		// VIEW [team_name]
 		if (detailPayload.size() != 1) {
 			return RES_UNDEFINED_ERROR;
 		}
-		vector<string> result;
-		return FileService::viewFileStructure(usersTeams, detailPayload[0], client.username, client.fileStructure);
+		string result = FileService::viewFileStructure(usersTeams, detailPayload[0], client.username, client.fileStructure);
+		for (auto item : client.fileStructure) {
+			result += " " + item;
+		}
 	} else {
 		return RES_UNDEFINED_ERROR;
 	}
