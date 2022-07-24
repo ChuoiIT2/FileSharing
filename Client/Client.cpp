@@ -115,7 +115,7 @@ int connectToServer() {
 * @function sReceive: receive wrapper function
 *
 * @param buff: receive buff
-* 
+*
 * @param size: buff size
 *
 * @param flags: flag option when receive
@@ -277,8 +277,7 @@ int handleDownload(string filePath) {
 		length = Helpers::getLength(cLength);
 		if (length == 0) {
 			fclose(file);
-		}
-		else {
+		} else {
 			fwrite(rBuff + 8, 1, length, file);
 		}
 	} while (length != 0);
@@ -300,29 +299,32 @@ void handleResponse(string requestType, string res) {
 		if (res == RES_REGISTER_SUCCESS) {
 			client.isLoggedIn = true;
 		}
-	}
-	else if (requestType == REQ_LOGIN) {
+	} else if (requestType == REQ_LOGIN) {
 		if (res == RES_LOGIN_SUCCESS) {
 			client.isLoggedIn = true;
 		}
-	}
-	else if (requestType == REQ_DOWNLOAD) {
+	} else if (requestType == REQ_DOWNLOAD) {
 		if (res == RES_REQ_DOWNLOAD_SUCCESS) {
 			if (handleDownload(client.downloadFileName)) {
 				msg = "Error while downloading file";
-			}
-			else {
+			} else {
 				msg = "Download file completed";
 			}
 		}
-	}
-	else if (requestType == REQ_UPLOAD) {
+	} else if (requestType == REQ_UPLOAD) {
 		if (res == RES_REQ_UPLOAD_SUCCESS) {
 			if (handleUpload(client.uploadFilePath)) {
 				msg = "Error while uploading file";
-			}
-			else {
+			} else {
 				msg = "Upload file completed";
+			}
+		}
+	} else if (requestType == REQ_TEAMS) {
+		if (res.find(RES_TEAMS_SUCCESS) != string::npos) {
+			vector<string> teams = Helpers::splitString(res, ' ');
+			msg = "List team:\n";
+			for (int i = 1; i < teams.size(); i++) {
+				msg += teams[i] + "\n";
 			}
 		}
 	}
@@ -333,8 +335,8 @@ void handleResponse(string requestType, string res) {
 /**
 * @function sendAndReceive: send request with byte stream and receive response
 *
-* @param requestType: type of request 
-* @param data: data to send 
+* @param requestType: type of request
+* @param data: data to send
 *
 * @return 0;
 */
@@ -346,6 +348,7 @@ int sendAndReceive(string requestType, vector<string> data) {
 	}
 	string payload = requestType;
 	payload += dataAfterReq;
+
 	int length = payload.length();
 	const char* sLength = Helpers::convertLength(length);
 

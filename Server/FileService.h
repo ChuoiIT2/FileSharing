@@ -20,8 +20,6 @@ public:
 			return RES_FORBIDDEN_ERROR;
 		}
 
-		string result;
-
 		for (const auto & file : fs::recursive_directory_iterator(ROOT_DATA_PATH + teamName)) {
 			data.push_back(file.path().string());
 		}
