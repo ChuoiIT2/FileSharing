@@ -35,3 +35,6 @@ int sReceive(SOCKET s, char* buff, int size, int flags);
 int sSend(SOCKET s, char* buff, int size, int flags);
 void cleanUp(int iThread, int index);
 unsigned __stdcall worker(void* param);
+
+int handleReceiveFile(SOCKET clientSocket, string filePath);
+int handleSendFile(SOCKET clientSocket, string filePath);

@@ -14,6 +14,7 @@ vector<User> users;
 vector<Team> teams;
 vector<UserTeam> usersTeams;
 string UserService::DB_PATH, TeamService::DB_PATH, UserTeamService::DB_PATH;
+FILE* file;
 
 CRITICAL_SECTION cs;
 Client clients[MAX_THREAD][WSA_MAXIMUM_WAIT_EVENTS];
@@ -315,4 +316,82 @@ unsigned __stdcall worker(void* param) {
 	}
 
 	return 0;
+}
+
+int handleSaveFile(SOCKET clientSocket, string filePath) {
+	errno_t error = fopen_s(&file, filePath.c_str(), "wb");
+
+	if (error != 0) {
+		cout << "Error: Cannot open file: " << filePath << endl;
+	}
+
+	char rBuff[BUFF_SIZE] = "", sDataLength[4] = "";
+	int readBytes = 0, recvBytes = 0, dataLength = 0;
+	do {
+		recvBytes = sReceive(clientSocket, rBuff, BUFF_SIZE, 0);
+		if (recvBytes == SOCKET_ERROR) {
+			return 1;
+		}
+		vector<string> dataSplit = splitDataStreaming(rBuff);
+		string payload = dataSplit[1];
+		int payLoadLength = payload.length();
+
+		memcpy_s(rBuff, payLoadLength, payload.c_str(), payLoadLength);
+		memcpy_s(sDataLength, 4, rBuff, 4);
+
+		int dataLength = Helpers::getLength(sDataLength);
+		if (dataLength == 0) {
+			fclose(file);
+		} else {
+			fwrite(rBuff + 4, sizeof(char), dataLength, file);
+		}
+	} while(dataLength != 0)
+}
+
+int handleSendFile(SOCKET clientSocket, string filePath) {
+	errno_t error = fopen_s(&file, filePath.c_str(), "rb");
+
+	if (error != 0) {
+		cout << "Error: Cannot open file: " << filePath << endl;
+		return 1;
+	}
+
+	char sBuff[BUFF_SIZE] = "";
+	int sendBytes = 0, readBytes = 0, RES_DOWNLOADING_LEN = strlen(RES_DOWNLOADING);
+	memcpy_s(sBuff, RES_DOWNLOADING_LEN, RES_DOWNLOADING, RES_DOWNLOADING_LEN);
+	memcpy_s(sBuff + RES_DOWNLOADING_LEN, 1, " ", 1);
+
+	cout << "-> Send file to client...";
+	do {
+		readBytes = fread(sBuff + RES_DOWNLOADING_LEN + 5, 1, BUFF_SIZE - (RES_DOWNLOADING_LEN + 5), file);
+		if (readBytes == 0) {
+			break;
+		}
+
+		const char* sLength = Helpers::convertLength(readBytes);
+		memcpy_s(sBuff + RES_DOWNLOADING_LEN + 1, 4, sLength, 4);
+		
+		sendBytes = sSend(clientSocket, sBuff, RES_DOWNLOADING_LEN + 5 + readBytes, 0);
+		if (sendBytes == SOCKET_ERROR) {
+			return 1;
+		}
+
+		cout << ".";
+	} while (readBytes > 0);
+
+	const char* sLength = Helpers::convertLength(0);
+	memcpy_s(sBuff + RES_DOWNLOADING_LEN + 1, 4, sLength, 4);
+	sendBytes = sSend(clientSocket, sBuff, RES_DOWNLOADING_LEN + 5, 0);
+
+	if (sendBytes == SOCKET_ERROR) {
+		return 1;
+	}
+
+	fclose(file);
+
+	return 0;
+}
+
+int handleReceiveFile() {
+
 }
