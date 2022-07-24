@@ -364,7 +364,8 @@ int sendAndReceive(string requestType, vector<string> data) {
 		exit(0);
 	}
 	handleResponse(requestType, string(buff));
-
+	cout << "-->Press any key to continue\n";
+	_getch();
 	return 0;
 }
 
