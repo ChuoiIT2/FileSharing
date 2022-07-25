@@ -212,7 +212,7 @@ int handleUpload(string filePath) {
 	}
 
 	char sBuff[BUFF_SIZE] = "";
-	int REQ_UPLOADING_LEN = strlen(REQ_UPLOADING);
+	int REQ_UPLOADING_LEN = (int) strlen(REQ_UPLOADING);
 	memcpy_s(sBuff + 4, REQ_UPLOADING_LEN, REQ_UPLOADING, REQ_UPLOADING_LEN);
 	memcpy_s(sBuff + 4 + REQ_UPLOADING_LEN, 1, " ", 1); // Add space after header
 
@@ -220,7 +220,7 @@ int handleUpload(string filePath) {
 	cout << "-> Uploading file to server...";
 	do {
 		// 5 is length of "length" + length of " "(space)
-		readBytes = fread(sBuff + REQ_UPLOADING_LEN + 5, 1, BUFF_SIZE - (REQ_UPLOADING_LEN + 5), file);
+		readBytes = (int) fread(sBuff + REQ_UPLOADING_LEN + 5, 1, BUFF_SIZE - (REQ_UPLOADING_LEN + 5), file);
 		if (readBytes == 0) {
 			break;
 		}
@@ -251,7 +251,7 @@ int handleUpload(string filePath) {
 
 int sendReqDownloading() {
 	char sBuff[BUFF_SIZE] = "";
-	const int REQ_DOWNLOADING_LEN = strlen(REQ_DOWNLOADING);
+	const int REQ_DOWNLOADING_LEN = (int)strlen(REQ_DOWNLOADING);
 	memcpy_s(sBuff, 4, Helpers::convertLength(REQ_DOWNLOADING_LEN), 4);
 	memcpy_s(sBuff + 4, REQ_DOWNLOADING_LEN, REQ_DOWNLOADING, REQ_DOWNLOADING_LEN);
 	int ret = sSend(sBuff, 4 + REQ_DOWNLOADING_LEN);
@@ -279,7 +279,7 @@ int handleDownload(string filePath) {
 	}
 
 	char rBuff[RECV_FILE_BUFF_SIZE] = "";
-	const int RES_METHOD_LEN = strlen(RES_DOWNLOADING);
+	const int RES_METHOD_LEN = (int) strlen(RES_DOWNLOADING);
 	int length = 0;
 	cout << "* Downloading...";
 	do {
@@ -377,8 +377,8 @@ int sendAndReceive(string requestType, vector<string> data) {
 	}
 	string payload = requestType;
 	payload += dataAfterReq;
-
-	int length = payload.length();
+	
+	int length = (int) payload.length();
 	const char* sLength = Helpers::convertLength(length);
 
 	memcpy_s(buff, 4, sLength, 4);

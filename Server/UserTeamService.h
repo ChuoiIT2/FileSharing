@@ -146,7 +146,7 @@ public:
 			}
 			bool hasRequest = false;
 			int indexReq = -1;
-			for (int i = 0, len = usersTeams.size(); i < len; i++) {
+			for (int i = 0, len = (int) usersTeams.size(); i < len; i++) {
 				if (usersTeams[i].getTeamName() == teamName
 					&& usersTeams[i].getUsername() == username
 					&& usersTeams[i].getStatus() == UserTeamStatus::PENDING) {
