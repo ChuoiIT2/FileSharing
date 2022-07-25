@@ -217,7 +217,7 @@ int handleUpload(string filePath) {
 	memcpy_s(sBuff + 4 + REQ_UPLOADING_LEN, 1, " ", 1); // Add space after header
 
 	int sentBytes = 0, length = 0, readBytes = 0;
-	cout << "-> Uploading file to server...\n";
+	cout << "-> Uploading file to server...";
 	do {
 		// 5 is length of "length" + length of " "(space)
 		readBytes = fread(sBuff + REQ_UPLOADING_LEN + 5, 1, BUFF_SIZE - (REQ_UPLOADING_LEN + 5), file);
@@ -243,10 +243,21 @@ int handleUpload(string filePath) {
 	if (sentBytes == SOCKET_ERROR) {
 		return 1;
 	}
-	cout << "\nUploaded file\n";
+	cout << "\nComplete!\n";
 	fclose(file);
 
 	return 0;
+}
+
+int sendReqDownloading() {
+	char sBuff[BUFF_SIZE] = "";
+	const int REQ_DOWNLOADING_LEN = strlen(REQ_DOWNLOADING);
+	memcpy_s(sBuff, 4, Helpers::convertLength(REQ_DOWNLOADING_LEN), 4);
+	memcpy_s(sBuff + 4, REQ_DOWNLOADING_LEN, REQ_DOWNLOADING, REQ_DOWNLOADING_LEN);
+	int ret = sSend(sBuff, 4 + REQ_DOWNLOADING_LEN);
+	if (ret <= 0) {
+		return 1;
+	}
 }
 
 /**
@@ -257,30 +268,41 @@ int handleUpload(string filePath) {
 * @return 0 if success, 1 otherwise
 */
 int handleDownload(string filePath) {
+	int ret = sendReqDownloading();
+	if (ret <= 0) {
+		return 1;
+	}
+
 	errno_t error = fopen_s(&file, filePath.c_str(), "wb");
 	if (error) {
 		cout << "Error: Cannot open file: " << filePath << endl;
 		return 1;
 	}
 
-	char sBuff[BUFF_SIZE] = "", rBuff[BUFF_SIZE] = "";
-	int length = 0, ret = 0;
-	char cLength[4] = "";
+	char rBuff[RECV_FILE_BUFF_SIZE] = "";
+	const int RES_METHOD_LEN = strlen(RES_DOWNLOADING);
+	int length = 0;
+	cout << "* Downloading...";
 	do {
 		ret = sReceive(rBuff);
 		if (ret <= 0) {
 			return 1;
 		}
-		cout << "-->Received " << ret << " bytes\n";
 		//msg: "102" + " " + "4byte length" + data;
-		memcpy_s(cLength, 4, rBuff + 4, 4);
-		length = Helpers::getLength(cLength);
+		length = Helpers::getLength(rBuff + RES_METHOD_LEN + 1);
+		cout << ".";
 		if (length == 0) {
 			fclose(file);
 		} else {
-			fwrite(rBuff + 8, 1, length, file);
+			fwrite(rBuff + 5 + RES_METHOD_LEN, 1, length, file);
+			Sleep(50);
+			ret = sendReqDownloading();
+			if (ret <= 0) {
+				return 1;
+			}
 		}
 	} while (length != 0);
+	cout << "\n";
 
 	return 0;
 }
