@@ -41,16 +41,6 @@ int Helpers::toInt(char* str) {
 }
 
 /**
-* @function to_wchar_t: convert string to wchar_t
-* 
-* @return wchar_t
-*/
-const wchar_t* Helpers::to_wchar_t(string str) {
-	wstring widestr = wstring(str.begin(), str.end());
-	return widestr.c_str();
-}
-
-/**
 * @functioN printWSAError: print error be sent by WSA
 * 
 * @param error: WSA error

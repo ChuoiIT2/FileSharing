@@ -123,12 +123,10 @@ int main(int argc, char** argv) {
 						strcpy_s(clientTmp.ipAddr, clientIP);
 						clientTmp.port = clientPort;
 
-						//critical section
 						EnterCriticalSection(&cs);
 						clients[iterThread][iterClient] = clientTmp;
 						LeaveCriticalSection(&cs);
 
-						//critical section
 						EnterCriticalSection(&cs);
 						threads[iterThread].events[iterClient] = WSACreateEvent();
 						WSAEventSelect(clients[iterThread][iterClient].socket, threads[iterThread].events[iterClient], FD_READ | FD_CLOSE);
@@ -227,7 +225,7 @@ vector<string> splitDataStreaming(char* receiveData) {
 * @param buff: buff for storing data received
 * @param size: size of the buff, default is BUFF_SIZE
 * @param flags: control flag, default is 0
-* @return number of bytes is received
+* @return ret is number of bytes is received
 */
 int sReceive(SOCKET s, char* buff, int size = BUFF_SIZE, int flags = 0) {
 	int ret = recv(s, buff, size, flags);
@@ -246,7 +244,7 @@ int sReceive(SOCKET s, char* buff, int size = BUFF_SIZE, int flags = 0) {
 * @param buff: buff for storing data sent
 * @param size: size of the buff, default is BUFF_SIZE
 * @param flags: control flag, default is 0
-* @return number of bytes is sent
+* @return ret is number of bytes is sent
 */
 int sSend(SOCKET s, char* buff, int size, int flags = 0) {
 	int ret = send(s, buff, size, flags);
@@ -316,7 +314,7 @@ string handleUploading(char* buff, Client &client) {
 * @function handleDownloading: handle request downloading file from client
 *
 * param client: struct type Client for storign client information
-* @return string ""
+* @return RES_UNDEFINED_ERROR if error is undefined, else return ""
 */
 string handleDownloading(Client &client) {
 	string fullPath = ROOT_DATA_PATH + client.curTeam + "/" + client.curFileName;
@@ -351,7 +349,7 @@ string handleDownloading(Client &client) {
 *
 * @param buff: buff for storing data received
 * @param client: struct type Client for storign client information
-* @return response from server
+* @return response of protocol from server
 */
 string handleRequest(char* buff, Client &client) {
 	vector<string> reqData = splitDataStreaming(buff);

@@ -145,6 +145,9 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="TeamService.cpp" />
+    <ClCompile Include="UserService.cpp" />
+    <ClCompile Include="UserTeamService.cpp" />
     <ClInclude Include="FileService.h" />
     <ClInclude Include="Helpers.h" />
     <ClInclude Include="stdafx.h" />
