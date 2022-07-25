@@ -255,9 +255,8 @@ int sendReqDownloading() {
 	memcpy_s(sBuff, 4, Helpers::convertLength(REQ_DOWNLOADING_LEN), 4);
 	memcpy_s(sBuff + 4, REQ_DOWNLOADING_LEN, REQ_DOWNLOADING, REQ_DOWNLOADING_LEN);
 	int ret = sSend(sBuff, 4 + REQ_DOWNLOADING_LEN);
-	if (ret <= 0) {
-		return 1;
-	}
+
+	return ret;
 }
 
 /**
@@ -345,7 +344,7 @@ void handleResponse(string requestType, string res) {
 		if (res.find(RES_TEAMS_SUCCESS) != string::npos) {
 			vector<string> teams = Helpers::splitString(res, ' ');
 			msg = "List team:\n";
-			for (int i = 1; i < teams.size(); i++) {
+			for (unsigned int i = 1; i < teams.size(); i++) {
 				msg += teams[i] + "\n";
 			}
 		}
@@ -353,7 +352,7 @@ void handleResponse(string requestType, string res) {
 		if (res.find(RES_VIEW_SUCCESS) != string::npos) {
 			vector<string> data = Helpers::splitString(res, ' ');
 			msg = "File structure:\n";
-			for (int i = 1; i < data.size(); i++) {
+			for (unsigned int i = 1; i < data.size(); i++) {
 				msg += data[i] + "\n";
 			}
 		}
