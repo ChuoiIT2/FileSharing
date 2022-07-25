@@ -414,6 +414,7 @@ void authScreen() {
 	while (!valid) {
 		cout << "\n>Enter your selection: ";
 		getline(cin, line);
+		cin.clear();
 		iOption = line[0] - '0';
 		if (iOption < 1 || iOption > 2 || line.size() > 1) {
 			cout << "\n-->Invalid option, please type again!\n";
@@ -648,8 +649,10 @@ void homeScreen() {
 
 	while (!valid) {
 		cout << "\n>Enter your selection: ";
+		cin.ignore();
 		getline(cin, line);
-		
+		cin.clear();
+
 		if (line.size() == 1) {
 			iOption = line[0] - '0';
 		}
