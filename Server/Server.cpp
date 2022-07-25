@@ -218,13 +218,12 @@ int sSend(SOCKET s, char* buff, int size, int flags = 0) {
 void cleanUp(int iThread, int index) {
 	//close socket and close event
 	closesocket(clients[iThread][index].socket);
-	clients[iThread][index].socket = 0;
+	clients[iThread][index].reset();
 	WSACloseEvent(threads[iThread].events[index]);
-	int i;
 
 	//move clients from closed socket to the left
 	//purpose of use: make end of array empty
-	for (i = index; i < WSA_MAXIMUM_WAIT_EVENTS; i++) {
+	for (int i = index; i < WSA_MAXIMUM_WAIT_EVENTS; i++) {
 		clients[iThread][i].socket = clients[iThread][i + 1].socket;
 		threads[iThread].events[i] = threads[iThread].events[i + 1];
 		clients[iThread][i] = clients[iThread][i + 1];
@@ -482,8 +481,7 @@ unsigned __stdcall worker(void* param) {
 		if (sockEvent.lNetworkEvents & FD_CLOSE) {
 
 			if (sockEvent.iErrorCode[FD_CLOSE_BIT] != 0) {
-				cout << "FD_READ failed with error " << sockEvent.iErrorCode[FD_READ_BIT] << endl;
-				//break;
+				cout << "Client disconnected\n";
 			}
 
 			cleanUp(iThread, index);

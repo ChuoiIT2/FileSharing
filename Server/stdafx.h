@@ -31,6 +31,21 @@ struct Client {
 	string curFileName;
 	FILE* file;
 	bool isOpeningFile = false;
+
+	void reset() {
+		socket = 0;
+		memset(ipAddr, 0, INET_ADDRSTRLEN);
+		port = 0;
+		username = "";
+		teams = { };
+		fileStructure = { };
+		isLoggedIn = false;
+		curTeam = "";
+		curDirPath = "";
+		curFileName = "";
+		file = NULL;
+		isOpeningFile = false;
+	}
 };
 
 struct ThreadInfo {
