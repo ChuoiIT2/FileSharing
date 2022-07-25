@@ -249,6 +249,17 @@ int handleUpload(string filePath) {
 	return 0;
 }
 
+int sendReqDownloading() {
+	char sBuff[BUFF_SIZE] = "";
+	const int REQ_DOWNLOADING_LEN = strlen(REQ_DOWNLOADING);
+	memcpy_s(sBuff, 4, Helpers::convertLength(REQ_DOWNLOADING_LEN), 4);
+	memcpy_s(sBuff + 4, REQ_DOWNLOADING_LEN, REQ_DOWNLOADING, REQ_DOWNLOADING_LEN);
+	int ret = sSend(sBuff, 4 + REQ_DOWNLOADING_LEN);
+	if (ret <= 0) {
+		return 1;
+	}
+}
+
 /**
 * @function handleDownload: download file after received allow response from server
 *
@@ -257,6 +268,11 @@ int handleUpload(string filePath) {
 * @return 0 if success, 1 otherwise
 */
 int handleDownload(string filePath) {
+	int ret = sendReqDownloading();
+	if (ret <= 0) {
+		return 1;
+	}
+
 	errno_t error = fopen_s(&file, filePath.c_str(), "wb");
 	if (error) {
 		cout << "Error: Cannot open file: " << filePath << endl;
@@ -264,22 +280,29 @@ int handleDownload(string filePath) {
 	}
 
 	char rBuff[RECV_FILE_BUFF_SIZE] = "";
-	int length = 0, ret = 0;
 	const int RES_METHOD_LEN = strlen(RES_DOWNLOADING);
+	int length = 0;
+	cout << "* Downloading...";
 	do {
 		ret = sReceive(rBuff);
 		if (ret <= 0) {
 			return 1;
 		}
-		cout << "-->Received " << ret << " bytes\n";
 		//msg: "102" + " " + "4byte length" + data;
 		length = Helpers::getLength(rBuff + RES_METHOD_LEN + 1);
+		cout << ".";
 		if (length == 0) {
 			fclose(file);
 		} else {
 			fwrite(rBuff + 5 + RES_METHOD_LEN, 1, length, file);
+			Sleep(50);
+			ret = sendReqDownloading();
+			if (ret <= 0) {
+				return 1;
+			}
 		}
 	} while (length != 0);
+	cout << "\n";
 
 	return 0;
 }

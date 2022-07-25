@@ -258,29 +258,31 @@ string handleUploading(char* buff, Client &client) {
 	return "";
 }
 
-string handleDownloading(string teamName, Client &client, string filePath) {
-	string response = FileService::downloadFile(usersTeams, teamName, client, filePath);
-	sSend(client.socket, (char*)response.c_str(), response.length());
-
-	if (response != RES_REQ_DOWNLOAD_SUCCESS) {
-		return "";
-	}
-	// Send bytes data
-	int length = 0;
+string handleDownloading(Client &client) {
 	string fullPath = ROOT_DATA_PATH + client.curTeam + "/" + client.curFileName;
-	fopen_s(&client.file, fullPath.c_str(), "rb");
+
+	if (!client.isOpeningFile) {
+		errno_t error = fopen_s(&client.file, fullPath.c_str(), "rb");
+		if (error) {
+			return RES_UNDEFINED_ERROR;
+		}
+		client.isOpeningFile = true;
+	}
+
 	char fBuff[SEND_FILE_BUFF_SIZE] = "";
 	const int RES_DOWNLOADING_LEN = strlen(RES_DOWNLOADING);
 	memcpy_s(fBuff, RES_DOWNLOADING_LEN, RES_DOWNLOADING, RES_DOWNLOADING_LEN);
 	memcpy_s(fBuff + RES_DOWNLOADING_LEN, 1, " ", 1);
-	do {
-		length = fread(fBuff + RES_DOWNLOADING_LEN + 5, 1, SEND_FILE_BUFF_SIZE - (RES_DOWNLOADING_LEN + 5), client.file);
-		memcpy_s(fBuff + RES_DOWNLOADING_LEN + 1, 4, Helpers::convertLength(length), 4);
 
-		sSend(client.socket, fBuff, length + RES_DOWNLOADING_LEN + 5);
-		Sleep(50);
-	} while (length > 0);
-	fclose(client.file);
+	int length = fread(fBuff + RES_DOWNLOADING_LEN + 5, 1, SEND_FILE_BUFF_SIZE - (RES_DOWNLOADING_LEN + 5), client.file);
+	memcpy_s(fBuff + RES_DOWNLOADING_LEN + 1, 4, Helpers::convertLength(length), 4);
+
+	int ret = sSend(client.socket, fBuff, length + RES_DOWNLOADING_LEN + 5);
+
+	if (length == 0) {
+		fclose(client.file);
+		client.isOpeningFile = false;
+	}
 	return "";
 }
 
@@ -291,9 +293,6 @@ string handleRequest(char* buff, Client &client) {
 
 	if (method != REQ_UPLOADING) {
 		detailPayload = Helpers::splitString(payload, ' ');
-	}
-	if (method == REQ_TEAMS) {
-		detailPayload.clear();
 	}
 
 	if (method == REQ_REGISTER) {
@@ -313,7 +312,6 @@ string handleRequest(char* buff, Client &client) {
 		if (detailPayload.size() != 2) {
 			return RES_UNDEFINED_ERROR;
 		}
-
 		string result = UserService::checkLogin(users, { detailPayload[0], detailPayload[1] });
 		if (result == RES_LOGIN_SUCCESS) {
 			client.username = detailPayload[0];
@@ -397,12 +395,15 @@ string handleRequest(char* buff, Client &client) {
 			return RES_UNAUTHORIZED_ERROR;
 		}
 
-		return handleDownloading(detailPayload[0], client, detailPayload[1]);
+		return FileService::downloadFile(usersTeams, detailPayload[0], client, detailPayload[1]);
+	} else if (method == REQ_DOWNLOADING) {
+		if (!client.isLoggedIn) {
+			return RES_UNAUTHORIZED_ERROR;
+		}
+
+		return handleDownloading(client);
 	} else if (method == REQ_TEAMS) {
 		// TEAMS
-		if (detailPayload.size() != 0) {
-			return RES_UNDEFINED_ERROR;
-		}
 		if (!client.isLoggedIn) {
 			return RES_UNAUTHORIZED_ERROR;
 		}
