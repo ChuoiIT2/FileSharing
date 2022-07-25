@@ -444,10 +444,8 @@ unsigned __stdcall worker(void* param) {
 		memset(sendBuff, 0, sizeof(sendBuff));
 
 		index = WSAWaitForMultipleEvents(threads[iThread].nEvents, threads[iThread].events, FALSE, 30, FALSE);
-		if (index == WSA_WAIT_TIMEOUT) continue;
-		if (index == WSA_WAIT_FAILED) {
-			cout << "WSAWaitForMultipleEvents() failed\n";
-			break;
+		if (index == WSA_WAIT_TIMEOUT || index == WSA_WAIT_FAILED) {
+			continue;
 		}
 
 		index = index - WSA_WAIT_EVENT_0;
