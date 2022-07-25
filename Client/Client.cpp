@@ -670,7 +670,6 @@ void homeScreen() {
 
 	while (!valid) {
 		cout << "\n>Enter your selection: ";
-		cin.ignore();
 		getline(cin, line);
 		cin.clear();
 
@@ -681,7 +680,7 @@ void homeScreen() {
 		if (line.size() == 2) {
 			iOption = (line[0] - '0') * 10 + (line[1] - '0');
 		}
-
+		
 		if (iOption < 1 || iOption > 11) {
 			cout << "\n-->Invalid option, please type again!\n";
 			iOption = -1;
