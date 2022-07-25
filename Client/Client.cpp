@@ -243,7 +243,7 @@ int handleUpload(string filePath) {
 	if (sentBytes == SOCKET_ERROR) {
 		return 1;
 	}
-	cout << "Uploaded file";
+	cout << "\nUploaded file\n";
 	fclose(file);
 
 	return 0;
@@ -443,7 +443,7 @@ void authScreen() {
 void loginScreen() {
 	cout << "\nTo login you need enter your name and your password!\n>Enter your username: ";
 	cin >> client.username;
-	cout << "\nEnter your password: ";
+	cout << "\n>Enter your password: ";
 	cin >> client.password;
 
 	sendAndReceive(REQ_LOGIN, { client.username, client.password });
@@ -484,7 +484,7 @@ void registerScreen() {
 */
 int handleAddTeam() {
 	string teamName;
-	cout << "Enter team name to create: ";
+	cout << ">Enter team name to create: ";
 	cin >> teamName;
 
 	return sendAndReceive(REQ_ADDTEAM, { teamName });
@@ -497,7 +497,7 @@ int handleAddTeam() {
 */
 int handleJoinTeam() {
 	string teamName;
-	cout << "Enter team name to join: ";
+	cout << ">Enter team name to join: ";
 	cin >> teamName;
 
 	return sendAndReceive(REQ_JOIN, { teamName });
@@ -510,9 +510,9 @@ int handleJoinTeam() {
 */
 int handleAccept() {
 	string teamName, username;
-	cout << "Enter team name: ";
+	cout << ">Enter team name: ";
 	cin >> teamName;
-	cout << "Enter username for accept: ";
+	cout << ">Enter username for accept: ";
 	cin >> username;
 
 	return sendAndReceive(REQ_ACCEPT, { teamName, username });
@@ -525,13 +525,13 @@ int handleAccept() {
 */
 int handleReqUpload() {
 	string teamName, remoteDirPath;
-	cout << "Enter team name: ";
+	cout << ">Enter team name: ";
 	cin >> teamName;
-	cout << "Enter directory path at remote storage:\n";
+	cout << ">Enter directory path at remote storage: ";
 	cin >> remoteDirPath;
-	cout << "Enter file path at local storage to upload:\n";
+	cout << ">Enter file path at local storage to upload: ";
 	cin >> client.uploadFilePath;
-	cout << "Enter file's name to save on server:\n";
+	cout << ">Enter file's name to save on server: ";
 	cin >> client.uploadFileName;
 
 	return sendAndReceive(REQ_UPLOAD, { teamName, remoteDirPath, client.uploadFileName });
@@ -544,9 +544,9 @@ int handleReqUpload() {
 */
 int handleRm() {
 	string teamName, remoteFilePath;
-	cout << "Enter team name: ";
+	cout << ">Enter team name: ";
 	cin >> teamName;
-	cout << "Enter file path at remote storage:\n";
+	cout << ">Enter file path at remote storage: ";
 	cin >> remoteFilePath;
 
 	return sendAndReceive(REQ_RM, { teamName, remoteFilePath });
@@ -559,11 +559,11 @@ int handleRm() {
 */
 int handleMkdir() {
 	string teamName, remoteDirPath, dirName;
-	cout << "Enter team name: ";
+	cout << ">Enter team name: ";
 	cin >> teamName;
-	cout << "Enter directory path at remote for locating new sub directory:\n";
+	cout << ">Enter directory path at remote for locating new sub directory: ";
 	cin >> remoteDirPath;
-	cout << "Enter directory name to create: ";
+	cout << ">Enter directory name to create: ";
 	cin >> dirName;
 
 	return sendAndReceive(REQ_MKDIR, { teamName, remoteDirPath, dirName });
@@ -576,9 +576,9 @@ int handleMkdir() {
 */
 int handleRmdir() {
 	string teamName, remoteDirPath;
-	cout << "Enter team name: ";
+	cout << ">Enter team name: ";
 	cin >> teamName;
-	cout << "Enter directory path at remote storage:\n";
+	cout << ">Enter directory path at remote storage: ";
 	cin >> remoteDirPath;
 
 	return sendAndReceive(REQ_RMDIR, { teamName, remoteDirPath });
@@ -591,11 +591,11 @@ int handleRmdir() {
 */
 int handleReqDownload() {
 	string teamName, remoteFilePath;
-	cout << "Enter team name: ";
+	cout << ">Enter team name: ";
 	cin >> teamName;
-	cout << "Enter file path at remote storage:\n";
+	cout << ">Enter file path at remote storage: ";
 	cin >> remoteFilePath;
-	cout << "Enter file's name to save:\n";
+	cout << ">Enter file's name to save: ";
 	cin >> client.downloadFileName;
 
 	return sendAndReceive(REQ_DOWNLOAD, { teamName, remoteFilePath });
@@ -617,7 +617,7 @@ int handleGetTeams() {
 */
 int handleViewFS() {
 	string teamName;
-	cout << "Enter team name: ";
+	cout << ">Enter team name: ";
 	cin >> teamName;
 
 	return sendAndReceive(REQ_VIEW, { teamName });
