@@ -79,8 +79,8 @@ public:
 		return RES_RMDIR_SUCCESS;
 	}
 
-	static string uploadFile(vector<UserTeam> usersTeams, string teamName, string username, string dirPath, string fileName) {
-		if (!UserTeamService::isInTeam(usersTeams, teamName, username)) {
+	static string uploadFile(vector<UserTeam> usersTeams, string teamName, Client &client, string dirPath, string fileName) {
+		if (!UserTeamService::isInTeam(usersTeams, teamName, client.username)) {
 			return RES_FORBIDDEN_ERROR;
 		}
 		string fullDirPath = ROOT_DATA_PATH + teamName + "/" + dirPath;
@@ -90,7 +90,11 @@ public:
 		if (fs::exists(fullDirPath + "/" + fileName)) {
 			return RES_UPLOAD_FILE_EXIST;
 		}
-		return RES_UPLOAD_SUCCESS;
+		client.curTeam = teamName;
+		client.curDirPath = dirPath;
+		client.curFileName = fileName;
+
+		return RES_REQ_UPLOAD_SUCCESS;
 	}
 
 	static string downloadFile(vector<UserTeam> usersTeams, string teamName, string username, string filePath) {

@@ -214,7 +214,7 @@ int handleUpload(string filePath) {
 	char sBuff[BUFF_SIZE] = "";
 	int REQ_UPLOADING_LEN = strlen(REQ_UPLOADING);
 	memcpy_s(sBuff + 4, REQ_UPLOADING_LEN, REQ_UPLOADING, REQ_UPLOADING_LEN);
-	memcpy_s(sBuff + 5 + REQ_UPLOADING_LEN, 1, " ", 1); // Add space after header
+	memcpy_s(sBuff + 4 + REQ_UPLOADING_LEN, 1, " ", 1); // Add space after header
 
 	int sentBytes = 0, length = 0, readBytes = 0;
 	cout << "-> Uploading file to server...\n";
@@ -225,7 +225,7 @@ int handleUpload(string filePath) {
 			break;
 		}
 
-		const char* sLength = Helpers::convertLength(readBytes);
+		const char* sLength = Helpers::convertLength(readBytes + REQ_UPLOADING_LEN + 1);
 		memcpy_s(sBuff, 4, sLength, 4);
 
 		sentBytes = sSend(sBuff, REQ_UPLOADING_LEN + 5 + readBytes);

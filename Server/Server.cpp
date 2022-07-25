@@ -305,8 +305,29 @@ string handleRequest(char* buff, Client &client) {
 		if (!client.isLoggedIn) {
 			return RES_UNAUTHORIZED_ERROR;
 		}
-		return FileService::uploadFile(usersTeams, detailPayload[0], client.username, detailPayload[1], detailPayload[2]);
+		return FileService::uploadFile(usersTeams, detailPayload[0], client, detailPayload[1], detailPayload[2]);
 	} else if (method == REQ_UPLOADING) {
+		int length = Helpers::getLength(buff);
+		int fLength = length - strlen(REQ_UPLOADING) - 1;
+		cout << "Length: " << fLength << "\n";
+
+		char fBuff[BUFF_SIZE];
+		if (fLength > 0) {
+			client.isUploading = true;
+			memcpy_s(fBuff, fLength, buff + 5 + strlen(REQ_UPLOADING), fLength);
+		} else {
+			client.isUploading = false;
+			fclose(client.file);
+		}
+
+		if (client.isUploading) {
+			string fullPath = ROOT_DATA_PATH + client.curTeam + "/" + client.curDirPath + "/" + client.curFileName;
+			errno_t error = fopen_s(&client.file, fullPath.c_str(), "wb");
+			if (error) {
+				cout << "error: " << error << endl;
+			}
+			fwrite(fBuff, 1, fLength, client.file);
+		}
 	} else if (method == REQ_RM) {
 		// RM [team_name] [remote_file_path]
 		if (detailPayload.size() != 2) {
@@ -409,8 +430,11 @@ unsigned __stdcall worker(void* param) {
 				cleanUp(iThread, index);
 				WSAResetEvent(threads[iThread].events[index]);
 			} else {
-				recvBuff[ret] = 0;
-				memcpy(sendBuff, recvBuff, ret);
+				recvBuff[ret] = '\0';
+				for (int i = 0; i < 50; i++) {
+					printf("%d ", recvBuff[i]);
+				}
+				cout << "\n";
 
 				string result = handleRequest(recvBuff, clients[iThread][index]);
 				ret = sSend(clients[iThread][index].socket, (char*)result.c_str(), result.length());
