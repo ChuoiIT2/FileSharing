@@ -10,7 +10,8 @@
 #include <vector>
 #include <cstdlib>
 
-#define BUFF_SIZE 100000
+#define BUFF_SIZE 20000
+#define SEND_FILE_BUFF_SIZE 10000
 #define MAX_THREAD 10
 
 using namespace std;
@@ -44,6 +45,3 @@ int sReceive(SOCKET s, char* buff, int size, int flags);
 int sSend(SOCKET s, char* buff, int size, int flags);
 void cleanUp(int iThread, int index);
 unsigned __stdcall worker(void* param);
-
-int handleSaveFile(SOCKET clientSocket, string filePath);
-int handleSendFile(SOCKET clientSocket, string filePath);

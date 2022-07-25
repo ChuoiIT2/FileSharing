@@ -263,9 +263,9 @@ int handleDownload(string filePath) {
 		return 1;
 	}
 
-	char sBuff[BUFF_SIZE] = "", rBuff[BUFF_SIZE] = "";
+	char rBuff[RECV_FILE_BUFF_SIZE] = "";
 	int length = 0, ret = 0;
-	char cLength[4] = "";
+	const int RES_METHOD_LEN = strlen(RES_DOWNLOADING);
 	do {
 		ret = sReceive(rBuff);
 		if (ret <= 0) {
@@ -273,12 +273,11 @@ int handleDownload(string filePath) {
 		}
 		cout << "-->Received " << ret << " bytes\n";
 		//msg: "102" + " " + "4byte length" + data;
-		memcpy_s(cLength, 4, rBuff + 4, 4);
-		length = Helpers::getLength(cLength);
+		length = Helpers::getLength(rBuff + RES_METHOD_LEN + 1);
 		if (length == 0) {
 			fclose(file);
 		} else {
-			fwrite(rBuff + 8, 1, length, file);
+			fwrite(rBuff + 5 + RES_METHOD_LEN, 1, length, file);
 		}
 	} while (length != 0);
 
@@ -649,7 +648,7 @@ void homeScreen() {
 	while (!valid) {
 		cout << "\n>Enter your selection: ";
 		getline(cin, line);
-		
+
 		if (line.size() == 1) {
 			iOption = line[0] - '0';
 		}

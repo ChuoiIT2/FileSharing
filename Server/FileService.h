@@ -97,14 +97,18 @@ public:
 		return RES_REQ_UPLOAD_SUCCESS;
 	}
 
-	static string downloadFile(vector<UserTeam> usersTeams, string teamName, string username, string filePath) {
-		if (!UserTeamService::isInTeam(usersTeams, teamName, username)) {
+	static string downloadFile(vector<UserTeam> usersTeams, string teamName, Client &client, string filePath) {
+		if (!UserTeamService::isInTeam(usersTeams, teamName, client.username)) {
 			return RES_FORBIDDEN_ERROR;
 		}
-		string fullFilePath = ROOT_DATA_PATH + teamName + "/" + fullFilePath;
+		string fullFilePath = ROOT_DATA_PATH + teamName + "/" + filePath;
 		if (!fs::exists(fullFilePath)) {
 			return RES_DOWNLOAD_INVALID_PATH;
 		}
+
+		client.curTeam = teamName;
+		client.curFileName = filePath;
+
 		return RES_REQ_DOWNLOAD_SUCCESS;
 	}
 };

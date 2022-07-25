@@ -22,9 +22,8 @@ using namespace std;
 
 #pragma comment(lib, "Ws2_32.lib")
 
-#define BUFF_SIZE 50000
-#define TRANSFER_CODE 0
-#define ERROR_CODE 1
+#define BUFF_SIZE 10000
+#define RECV_FILE_BUFF_SIZE 20000
 
 struct Client {
 	SOCKET socket;

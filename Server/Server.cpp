@@ -234,6 +234,56 @@ void cleanUp(int iThread, int index) {
 	threads[iThread].nEvents--;
 }
 
+string handleUploading(char* buff, Client &client) {
+	int length = Helpers::getLength(buff);
+	int fLength = length - strlen(REQ_UPLOADING) - 1;
+
+	char fBuff[BUFF_SIZE];
+	if (fLength > 0) {
+		memcpy_s(fBuff, fLength, buff + 5 + strlen(REQ_UPLOADING), fLength);
+
+		string fullPath = ROOT_DATA_PATH + client.curTeam + "/" + client.curDirPath + "/" + client.curFileName;
+		if (!client.isOpeningFile) {
+			errno_t error = fopen_s(&client.file, fullPath.c_str(), "wb");
+			if (error) {
+				cout << "error: " << error << endl;
+			}
+			client.isOpeningFile = true;
+		}
+		fwrite(fBuff, 1, fLength, client.file);
+	} else {
+		client.isOpeningFile = false;
+		fclose(client.file);
+	}
+	return "";
+}
+
+string handleDownloading(string teamName, Client &client, string filePath) {
+	string response = FileService::downloadFile(usersTeams, teamName, client, filePath);
+	sSend(client.socket, (char*)response.c_str(), response.length());
+
+	if (response != RES_REQ_DOWNLOAD_SUCCESS) {
+		return "";
+	}
+	// Send bytes data
+	int length = 0;
+	string fullPath = ROOT_DATA_PATH + client.curTeam + "/" + client.curFileName;
+	fopen_s(&client.file, fullPath.c_str(), "rb");
+	char fBuff[SEND_FILE_BUFF_SIZE] = "";
+	const int RES_DOWNLOADING_LEN = strlen(RES_DOWNLOADING);
+	memcpy_s(fBuff, RES_DOWNLOADING_LEN, RES_DOWNLOADING, RES_DOWNLOADING_LEN);
+	memcpy_s(fBuff + RES_DOWNLOADING_LEN, 1, " ", 1);
+	do {
+		length = fread(fBuff + RES_DOWNLOADING_LEN + 5, 1, SEND_FILE_BUFF_SIZE - (RES_DOWNLOADING_LEN + 5), client.file);
+		memcpy_s(fBuff + RES_DOWNLOADING_LEN + 1, 4, Helpers::convertLength(length), 4);
+
+		sSend(client.socket, fBuff, length + RES_DOWNLOADING_LEN + 5);
+		Sleep(50);
+	} while (length > 0);
+	fclose(client.file);
+	return "";
+}
+
 string handleRequest(char* buff, Client &client) {
 	vector<string> reqData = splitDataStreaming(buff);
 	string method = reqData[0], payload = reqData[1];
@@ -307,26 +357,10 @@ string handleRequest(char* buff, Client &client) {
 		}
 		return FileService::uploadFile(usersTeams, detailPayload[0], client, detailPayload[1], detailPayload[2]);
 	} else if (method == REQ_UPLOADING) {
-		int length = Helpers::getLength(buff);
-		int fLength = length - strlen(REQ_UPLOADING) - 1;
-
-		char fBuff[BUFF_SIZE];
-		if (fLength > 0) {
-			memcpy_s(fBuff, fLength, buff + 5 + strlen(REQ_UPLOADING), fLength);
-
-			string fullPath = ROOT_DATA_PATH + client.curTeam + "/" + client.curDirPath + "/" + client.curFileName;
-			if (!client.isOpeningFile) {
-				errno_t error = fopen_s(&client.file, fullPath.c_str(), "wb");
-				if (error) {
-					cout << "error: " << error << endl;
-				}
-				client.isOpeningFile = true;
-			}
-			fwrite(fBuff, 1, fLength, client.file);
-		} else {
-			client.isOpeningFile = false;
-			fclose(client.file);
+		if (!client.isLoggedIn) {
+			return RES_UNAUTHORIZED_ERROR;
 		}
+		return handleUploading(buff, client);
 	} else if (method == REQ_RM) {
 		// RM [team_name] [remote_file_path]
 		if (detailPayload.size() != 2) {
@@ -362,7 +396,8 @@ string handleRequest(char* buff, Client &client) {
 		if (!client.isLoggedIn) {
 			return RES_UNAUTHORIZED_ERROR;
 		}
-		return FileService::downloadFile(usersTeams, detailPayload[0], client.username, detailPayload[1]);
+
+		return handleDownloading(detailPayload[0], client, detailPayload[1]);
 	} else if (method == REQ_TEAMS) {
 		// TEAMS
 		if (detailPayload.size() != 0) {
@@ -432,9 +467,11 @@ unsigned __stdcall worker(void* param) {
 				recvBuff[ret] = '\0';
 
 				string result = handleRequest(recvBuff, clients[iThread][index]);
-				ret = sSend(clients[iThread][index].socket, (char*)result.c_str(), result.length());
-				if (ret == SOCKET_ERROR) {
-					cleanUp(iThread, index);
+				if (!result.empty()) {
+					ret = sSend(clients[iThread][index].socket, (char*)result.c_str(), result.length());
+					if (ret == SOCKET_ERROR) {
+						cleanUp(iThread, index);
+					}
 				}
 
 				WSAResetEvent(threads[iThread].events[index]);
@@ -459,79 +496,3 @@ unsigned __stdcall worker(void* param) {
 	return 0;
 }
 
-int handleSaveFile(SOCKET clientSocket, string filePath) {
-	errno_t error = fopen_s(&file, filePath.c_str(), "wb");
-
-	if (error != 0) {
-		cout << "Error: Cannot open file: " << filePath << endl;
-		return 1;
-	}
-
-	char rBuff[BUFF_SIZE] = "", sDataLength[4] = "";
-	int readBytes = 0, recvBytes = 0, dataLength = 0;
-	do {
-		recvBytes = sReceive(clientSocket, rBuff, BUFF_SIZE, 0);
-		if (recvBytes == SOCKET_ERROR) {
-			return 1;
-		}
-		vector<string> dataSplit = splitDataStreaming(rBuff);
-		string payload = dataSplit[1];
-		int payLoadLength = payload.length();
-
-		memcpy_s(rBuff, payLoadLength, payload.c_str(), payLoadLength);
-		memcpy_s(sDataLength, 4, rBuff, 4);
-
-		int dataLength = Helpers::getLength(sDataLength);
-		if (dataLength == 0) {
-			fclose(file);
-		} else {
-			fwrite(rBuff + 4, sizeof(char), dataLength, file);
-		}
-	} while (dataLength != 0);
-
-	return 0;
-}
-
-int handleSendFile(SOCKET clientSocket, string filePath) {
-	errno_t error = fopen_s(&file, filePath.c_str(), "rb");
-
-	if (error != 0) {
-		cout << "Error: Cannot open file: " << filePath << endl;
-		return 1;
-	}
-
-	char sBuff[BUFF_SIZE] = "";
-	int sendBytes = 0, readBytes = 0, RES_DOWNLOADING_LEN = strlen(RES_DOWNLOADING);
-	memcpy_s(sBuff, RES_DOWNLOADING_LEN, RES_DOWNLOADING, RES_DOWNLOADING_LEN);
-	memcpy_s(sBuff + RES_DOWNLOADING_LEN, 1, " ", 1);
-
-	cout << "-> Send file to client...";
-	do {
-		readBytes = fread(sBuff + RES_DOWNLOADING_LEN + 5, 1, BUFF_SIZE - (RES_DOWNLOADING_LEN + 5), file);
-		if (readBytes == 0) {
-			break;
-		}
-
-		const char* sLength = Helpers::convertLength(readBytes);
-		memcpy_s(sBuff + RES_DOWNLOADING_LEN + 1, 4, sLength, 4);
-
-		sendBytes = sSend(clientSocket, sBuff, RES_DOWNLOADING_LEN + 5 + readBytes, 0);
-		if (sendBytes == SOCKET_ERROR) {
-			return 1;
-		}
-
-		cout << ".";
-	} while (readBytes > 0);
-
-	const char* sLength = Helpers::convertLength(0);
-	memcpy_s(sBuff + RES_DOWNLOADING_LEN + 1, 4, sLength, 4);
-	sendBytes = sSend(clientSocket, sBuff, RES_DOWNLOADING_LEN + 5, 0);
-
-	if (sendBytes == SOCKET_ERROR) {
-		return 1;
-	}
-
-	fclose(file);
-
-	return 0;
-}
