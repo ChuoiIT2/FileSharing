@@ -157,6 +157,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Server\FileService.cpp" />
     <ClCompile Include="..\Server\Helpers.cpp" />
     <ClCompile Include="..\Server\Team.cpp" />
     <ClCompile Include="..\Server\TeamService.cpp" />

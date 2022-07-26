@@ -7,6 +7,7 @@
 #include "UserTeam.h"
 #include "UserTeamService.h"
 #include "Helpers.h"
+#include "stdafx.h"
 #include <cstdio>
 
 using namespace std;
