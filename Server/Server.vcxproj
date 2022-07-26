@@ -167,6 +167,7 @@
     <ClCompile Include="TeamService.cpp" />
     <ClCompile Include="UserService.cpp" />
     <ClCompile Include="UserTeamService.cpp" />
+    <ClCompile Include="FileService.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
