@@ -80,5 +80,8 @@
     <ClCompile Include="UserService.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FileService.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
