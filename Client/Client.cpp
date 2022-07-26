@@ -101,7 +101,7 @@ int connectToServer() {
 	inet_pton(AF_INET, SERVER_HOST.c_str(), &serverAddr.sin_addr);
 
 	// Request to connect server
-	if (connect(client.socket, (sockaddr *)&serverAddr, sizeof(serverAddr))) {
+	if (connect(client.socket, (sockaddr*)&serverAddr, sizeof(serverAddr))) {
 		Helpers::printWSAError(WSAGetLastError(), "Cannot connect to server");
 		closesocket(client.socket);
 		WSACleanup();
@@ -152,7 +152,7 @@ int sSend(char* buff, int size, int flags = 0) {
 	return ret;
 }
 
-int main(int argc, char**argv) {
+int main(int argc, char** argv) {
 	if (handleArguments(argc, argv) != 0) {
 		return 0;
 	}
@@ -186,7 +186,7 @@ int main(int argc, char**argv) {
 *
 * @return 0 if missing or invalid arguments, 1 otherwise
 */
-int handleArguments(int argc, char**argv) {
+int handleArguments(int argc, char** argv) {
 	if (argc != 3) {
 		cout << "Invalid list arguments\n";
 		return 1;
@@ -212,7 +212,7 @@ int handleUpload(string filePath) {
 	}
 
 	char sBuff[BUFF_SIZE] = "";
-	int REQ_UPLOADING_LEN = (int) strlen(REQ_UPLOADING);
+	int REQ_UPLOADING_LEN = (int)strlen(REQ_UPLOADING);
 	memcpy_s(sBuff + 4, REQ_UPLOADING_LEN, REQ_UPLOADING, REQ_UPLOADING_LEN);
 	memcpy_s(sBuff + 4 + REQ_UPLOADING_LEN, 1, " ", 1); // Add space after header
 
@@ -220,7 +220,7 @@ int handleUpload(string filePath) {
 	cout << "-> Uploading file to server...";
 	do {
 		// 5 is length of "length" + length of " "(space)
-		readBytes = (int) fread(sBuff + REQ_UPLOADING_LEN + 5, 1, BUFF_SIZE - (REQ_UPLOADING_LEN + 5), file);
+		readBytes = (int)fread(sBuff + REQ_UPLOADING_LEN + 5, 1, BUFF_SIZE - (REQ_UPLOADING_LEN + 5), file);
 		if (readBytes == 0) {
 			break;
 		}
@@ -237,12 +237,26 @@ int handleUpload(string filePath) {
 	} while (readBytes > 0);
 
 	// Complete transfer file
-	const char* sLength = Helpers::convertLength(0);
+	const char* sLength = Helpers::convertLength(REQ_UPLOADING_LEN + 1);
 	memcpy_s(sBuff, 4, sLength, 4);
 	sentBytes = sSend(sBuff, REQ_UPLOADING_LEN + 5);
 	if (sentBytes == SOCKET_ERROR) {
+		fclose(file);
 		return 1;
 	}
+
+	char rBuff[RECV_FILE_BUFF_SIZE];
+	int ret = sReceive(rBuff);
+	if (ret == SOCKET_ERROR) {
+		fclose(file);
+		return 1;
+	}
+	rBuff[ret] = 0;
+	if (strcmp(rBuff, RES_UPLOAD_SUCCESS) != 0) {
+		fclose(file);
+		return 1;
+	}
+
 	cout << "\nComplete!\n";
 	fclose(file);
 
@@ -279,7 +293,7 @@ int handleDownload(string filePath) {
 	}
 
 	char rBuff[RECV_FILE_BUFF_SIZE] = "";
-	const int RES_METHOD_LEN = (int) strlen(RES_DOWNLOADING);
+	const int RES_METHOD_LEN = (int)strlen(RES_DOWNLOADING);
 	int length = 0;
 	cout << "* Downloading...";
 	do {
@@ -294,7 +308,7 @@ int handleDownload(string filePath) {
 			fclose(file);
 		} else {
 			fwrite(rBuff + 5 + RES_METHOD_LEN, 1, length, file);
-			Sleep(50);
+			Sleep(100);
 			ret = sendReqDownloading();
 			if (ret <= 0) {
 				return 1;
@@ -377,8 +391,8 @@ int sendAndReceive(string requestType, vector<string> data) {
 	}
 	string payload = requestType;
 	payload += dataAfterReq;
-	
-	int length = (int) payload.length();
+
+	int length = (int)payload.length();
 	const char* sLength = Helpers::convertLength(length);
 
 	memcpy_s(buff, 4, sLength, 4);
@@ -680,7 +694,7 @@ void homeScreen() {
 		if (line.size() == 2) {
 			iOption = (line[0] - '0') * 10 + (line[1] - '0');
 		}
-		
+
 		if (iOption < 1 || iOption > 11) {
 			cout << "\n-->Invalid option, please type again!\n";
 			iOption = -1;

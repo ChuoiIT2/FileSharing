@@ -182,9 +182,9 @@ void constructWinsock() {
 
 /**
 * @function constructAddr: constructor for server socket
-* 
+*
 * @param ipAddr: ip address of server
-* @param port: port of server 
+* @param port: port of server
 * @return void
 */
 sockaddr_in constructAddr(string ipAddr, int port) {
@@ -227,8 +227,10 @@ vector<string> splitDataStreaming(char* receiveData) {
 * @param flags: control flag, default is 0
 * @return ret is number of bytes is received
 */
-int sReceive(SOCKET s, char* buff, int size = BUFF_SIZE, int flags = 0) {
-	int ret = recv(s, buff, size, flags);
+int sReceive(Client &client, char* buff, int size = BUFF_SIZE, int flags = 0) {
+	int ret = recv(client.socket, buff, size, flags);
+	client.ret = ret;
+	cout << "\nRET: " << ret << endl;
 	if (ret == SOCKET_ERROR) {
 		Helpers::printWSAError(WSAGetLastError(), "Cannot receive data");
 	}
@@ -239,7 +241,7 @@ int sReceive(SOCKET s, char* buff, int size = BUFF_SIZE, int flags = 0) {
 /**
 *
 * @function sSend: The send() wrapper function
-* 
+*
 * @param s: SOCKET for sending data
 * @param buff: buff for storing data sent
 * @param size: size of the buff, default is BUFF_SIZE
@@ -256,7 +258,7 @@ int sSend(SOCKET s, char* buff, int size, int flags = 0) {
 
 /**
 * @function cleanUp: clean up, close socket and envent
-* 
+*
 * @param thread: index of thread
 * @param index: index of client in thread
 * @return void
@@ -280,14 +282,20 @@ void cleanUp(long long iThread, int index) {
 
 /**
 * @function handleUploading: handle request uploading file from client
-* 
+*
 * param buff: buff storing data received from client
 * param client: struct type Client for storing client information
 * @return string ""
 */
-string handleUploading(char* buff, Client &client) {
+string handleUploading(char* buff, Client& client) {
+	cout << endl;
 	int length = Helpers::getLength(buff);
-	int fLength = length - (int) strlen(REQ_UPLOADING) - 1;
+	int fLength = length - (int)strlen(REQ_UPLOADING) - 1;
+	cout << "Receive " << fLength << " bytes\n";
+
+	if (length != client.ret) {
+		return RES_UNDEFINED_ERROR;
+	}
 
 	char fBuff[BUFF_SIZE];
 	if (fLength > 0) {
@@ -305,6 +313,8 @@ string handleUploading(char* buff, Client &client) {
 	} else {
 		client.isOpeningFile = false;
 		fclose(client.file);
+
+		return RES_UPLOAD_SUCCESS;
 	}
 	return "";
 }
@@ -315,7 +325,7 @@ string handleUploading(char* buff, Client &client) {
 * param client: struct type Client for storign client information
 * @return RES_UNDEFINED_ERROR if error is undefined, else return ""
 */
-string handleDownloading(Client &client) {
+string handleDownloading(Client& client) {
 	string fullPath = ROOT_DATA_PATH + client.curTeam + "/" + client.curFileName;
 
 	if (!client.isOpeningFile) {
@@ -327,11 +337,11 @@ string handleDownloading(Client &client) {
 	}
 
 	char fBuff[SEND_FILE_BUFF_SIZE] = "";
-	const int RES_DOWNLOADING_LEN = (int) strlen(RES_DOWNLOADING);
+	const int RES_DOWNLOADING_LEN = (int)strlen(RES_DOWNLOADING);
 	memcpy_s(fBuff, RES_DOWNLOADING_LEN, RES_DOWNLOADING, RES_DOWNLOADING_LEN);
 	memcpy_s(fBuff + RES_DOWNLOADING_LEN, 1, " ", 1);
 
-	int length = (int) fread(fBuff + RES_DOWNLOADING_LEN + 5, 1, SEND_FILE_BUFF_SIZE - (RES_DOWNLOADING_LEN + 5), client.file);
+	int length = (int)fread(fBuff + RES_DOWNLOADING_LEN + 5, 1, SEND_FILE_BUFF_SIZE - (RES_DOWNLOADING_LEN + 5), client.file);
 	memcpy_s(fBuff + RES_DOWNLOADING_LEN + 1, 4, Helpers::convertLength(length), 4);
 
 	int ret = sSend(client.socket, fBuff, length + RES_DOWNLOADING_LEN + 5);
@@ -350,7 +360,7 @@ string handleDownloading(Client &client) {
 * @param client: struct type Client for storign client information
 * @return response of protocol from server
 */
-string handleRequest(char* buff, Client &client) {
+string handleRequest(char* buff, Client& client) {
 	vector<string> reqData = splitDataStreaming(buff);
 	string method = reqData[0], payload = reqData[1];
 	vector<string> detailPayload;
@@ -496,12 +506,12 @@ string handleRequest(char* buff, Client &client) {
 
 /**
 * @function worker: Thread for waiting network events on all socket, handle with each client
-* 
+*
 * @param param: pointer passed from parent function
 * @return 0
 */
 unsigned __stdcall worker(void* param) {
-	char sendBuff[BUFF_SIZE], recvBuff[BUFF_SIZE];
+	char recvBuff[BUFF_SIZE];
 	int ret;
 	DWORD index;
 	WSANETWORKEVENTS sockEvent;
@@ -509,9 +519,8 @@ unsigned __stdcall worker(void* param) {
 
 	while (1) {
 		memset(recvBuff, 0, sizeof(recvBuff));
-		memset(sendBuff, 0, sizeof(sendBuff));
 
-		index = WSAWaitForMultipleEvents(threads[iThread].nEvents, threads[iThread].events, FALSE, 30, FALSE);
+		index = WSAWaitForMultipleEvents(threads[iThread].nEvents, threads[iThread].events, FALSE, WSA_INFINITE, FALSE);
 		if (index == WSA_WAIT_TIMEOUT || index == WSA_WAIT_FAILED) {
 			continue;
 		}
@@ -525,17 +534,15 @@ unsigned __stdcall worker(void* param) {
 				break;
 			}
 
-			ret = sReceive(clients[iThread][index].socket, recvBuff, BUFF_SIZE);
+			ret = sReceive(clients[iThread][index], recvBuff, BUFF_SIZE);
 
 			if (ret <= 0) {
 				cleanUp(iThread, index);
 				WSAResetEvent(threads[iThread].events[index]);
 			} else {
-				recvBuff[ret] = '\0';
-
 				string result = handleRequest(recvBuff, clients[iThread][index]);
 				if (!result.empty()) {
-					ret = sSend(clients[iThread][index].socket, (char*)result.c_str(), (int) result.length());
+					ret = sSend(clients[iThread][index].socket, (char*)result.c_str(), (int)result.length());
 					if (ret == SOCKET_ERROR) {
 						cleanUp(iThread, index);
 					}

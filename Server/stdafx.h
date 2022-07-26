@@ -10,8 +10,8 @@
 #include <vector>
 #include <cstdlib>
 
-#define BUFF_SIZE 20000
-#define SEND_FILE_BUFF_SIZE 10000
+#define BUFF_SIZE 1400
+#define SEND_FILE_BUFF_SIZE 2000
 #define MAX_THREAD 10
 
 using namespace std;
@@ -31,6 +31,7 @@ struct Client {
 	string curFileName;
 	FILE* file;
 	bool isOpeningFile = false;
+	int ret;
 
 	void reset() {
 		socket = 0;
@@ -45,6 +46,7 @@ struct Client {
 		curFileName = "";
 		file = NULL;
 		isOpeningFile = false;
+		ret = 0;
 	}
 };
 
