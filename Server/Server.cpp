@@ -519,7 +519,7 @@ unsigned __stdcall worker(void* param) {
 	while (1) {
 		memset(recvBuff, 0, sizeof(recvBuff));
 
-		index = WSAWaitForMultipleEvents(threads[iThread].nEvents, threads[iThread].events, FALSE, WSA_INFINITE, FALSE);
+		index = WSAWaitForMultipleEvents(threads[iThread].nEvents, threads[iThread].events, FALSE, 30, FALSE);
 		if (index == WSA_WAIT_TIMEOUT || index == WSA_WAIT_FAILED) {
 			continue;
 		}
