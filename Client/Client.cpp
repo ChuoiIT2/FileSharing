@@ -308,7 +308,7 @@ int handleDownload(string filePath) {
 			fclose(file);
 		} else {
 			fwrite(rBuff + 5 + RES_METHOD_LEN, 1, length, file);
-			Sleep(100);
+			Sleep(50);
 			ret = sendReqDownloading();
 			if (ret <= 0) {
 				return 1;
@@ -684,6 +684,7 @@ void homeScreen() {
 
 	while (!valid) {
 		cout << "\n>Enter your selection: ";
+		cin.ignore(INT_MAX, '\n');
 		getline(cin, line);
 		cin.clear();
 
