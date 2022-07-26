@@ -164,6 +164,9 @@
     <ClCompile Include="Team.cpp" />
     <ClCompile Include="User.cpp" />
     <ClCompile Include="UserTeam.cpp" />
+    <ClCompile Include="TeamService.cpp" />
+    <ClCompile Include="UserService.cpp" />
+    <ClCompile Include="UserTeamService.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

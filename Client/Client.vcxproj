@@ -159,8 +159,11 @@
   <ItemGroup>
     <ClCompile Include="..\Server\Helpers.cpp" />
     <ClCompile Include="..\Server\Team.cpp" />
+    <ClCompile Include="..\Server\TeamService.cpp" />
     <ClCompile Include="..\Server\User.cpp" />
+    <ClCompile Include="..\Server\UserService.cpp" />
     <ClCompile Include="..\Server\UserTeam.cpp" />
+    <ClCompile Include="..\Server\UserTeamService.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
