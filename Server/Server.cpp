@@ -291,9 +291,8 @@ string handleUploading(char* buff, Client& client) {
 	cout << endl;
 	int length = Helpers::getLength(buff);
 	int fLength = length - (int)strlen(REQ_UPLOADING) - 1;
-	cout << "Receive " << fLength << " bytes\n";
 
-	if (length != client.ret) {
+	if (length != client.ret - 4) {
 		return RES_UNDEFINED_ERROR;
 	}
 

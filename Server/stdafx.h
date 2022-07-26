@@ -10,8 +10,8 @@
 #include <vector>
 #include <cstdlib>
 
-#define BUFF_SIZE 1400
-#define SEND_FILE_BUFF_SIZE 2000
+#define BUFF_SIZE 2000
+#define SEND_FILE_BUFF_SIZE 1400
 #define MAX_THREAD 10
 
 using namespace std;
